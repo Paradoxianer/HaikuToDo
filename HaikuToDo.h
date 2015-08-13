@@ -13,6 +13,10 @@
 #define	TASK_MIMETYPE	"text/task"
 #define APP_SIG			"application/x-vnd.Task"
 
+#define TASK_DIRECTORY	"Tasks"
+
+
+
 struct attrib {
 	const char*	attribute;
 	type_code	type;
@@ -30,6 +34,8 @@ struct attrib sDefaultAttributes[] = {
 	{ "META:priority", B_UINT32_TYPE, true, true, 50, B_TRANSLATE("Priority") },
 	{ NULL, NULL,true,true,0, NULL }
 };
+
+
 
 
 

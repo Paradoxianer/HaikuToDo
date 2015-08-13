@@ -125,10 +125,10 @@ status_t Task::WriteToFile(BFile toDoFile)
 
 bool Task::operator==(const Task& other) const
 {
-	return     title.Compare(other.Title()) 
-			&& completed == other.IsCompleted()
-			&& category.Compare(other.Category()) 
-			&& updated == other.LastUpdate()
-			&& notes.Compare(other.Notes()) 
-			&& due == other.DueTime());
+	return     title == other.title 
+			&& completed == other.completed
+			&& category == other.category 
+			&& updated == other.updated
+			&& notes == other.notes 
+			&& due == other.due;
 }

@@ -1,5 +1,13 @@
 #include "HaikuToDo.h"
 
+int
+main(int argc, const char *argv[])
+{
+	HaikuToDo app;
+	app.Run();
+	return 0;
+}
+
 
 HaikuToDo::HaikuToDo()
 	:	BApplication(APP_SIG)
