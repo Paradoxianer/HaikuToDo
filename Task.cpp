@@ -35,11 +35,7 @@ Task::Task(BMessage *message)
 	BString kind;
 	BString updateString;
 	BString dueString;
-	BString statusString;
-	if (message->FindString("kind",&kind) == B_OK)
-		if (kind.Compare("task#task") != B_OK)
-			return;
-	
+	BString statusString;	
 	message->FindString("title",&title);
 	
 	message->FindString("category",&category);
@@ -88,13 +84,13 @@ status_t Task::Archive(BMessage* archive, bool deep)
 	BString updateString;
 	BString dueString;
 	BArchivable::Archive(archive, deep);
-	archive->AddString("kind","task#task");
 	archive->AddString("title",title.String());
 	archive->AddString("category",category.String());
 	archive->AddString("update",updateString);
 	if (notes.CountChars()>0)
 		archive->AddString("notes",notes.String());
 	if (due != 0) {
+		
 		//generate dueString
 		archive->AddString("due",dueString.String());
 	}

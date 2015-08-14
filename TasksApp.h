@@ -59,8 +59,6 @@ public:
 	*/
 		status_t	StartUp(void);
 	
-		Task		Merge(Task firstTask,Task secondTask);
-
 		void		MessageReceived(BMessage *message);
 	
 static	int32		EventLoop(void *data);

@@ -13,12 +13,10 @@ public:
 							Task();
 							Task(const char* title,const char* category,bool completed);
 							Task(BMessage *message);
-							Task(BFile toDoFile);
 						
 			status_t		Archive(BMessage* archive, bool deep = true);
 	static	BArchivable*	Instantiate(BMessage* archive);
 	
-			status_t		WriteToFile(BFile toDoFile);
 
 	const	char*			Title(void) {return title.String();};
 			void			SetTitle(BString newTitle){title.SetTo(newTitle);};

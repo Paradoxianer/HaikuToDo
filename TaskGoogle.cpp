@@ -2,8 +2,8 @@
 
 GoogleConnect::GoogleConnect()
 {
-	categories=new BList(20);
-	tasks=new BList(20);
+	categories=new BObjectList<BString>(20);
+	tasks=new BObjectList<Task>(20);
 }
 
 GoogleConnect::~GoogleConnect()
@@ -12,7 +12,7 @@ GoogleConnect::~GoogleConnect()
 }
 
 bool
-GoogleConnect::Login()
+GoogleConnect::Init()
 {
 	BString endpoint("https://accounts.google.com/o/oauth2/auth");
 	endpoint.Append("?response_type=code");

@@ -1,5 +1,5 @@
-#ifndef GOOGLECONNECT_H
-#define GOOGLECONNECT_H
+#ifndef GOOGLE_CONNECT_H
+#define GOOGLE_CONNECT_H
 
 #include <iostream>
 #include <vector>
@@ -11,14 +11,20 @@ class TaskGoogle : public TaskSync{
 	public:
 									TaskGoogle();
 									~TaskGoogle();
-		bool						Login();
-		void						NextStep(BString code);
-		BList*						GetCategories();
-		BList*						GetTasks(Category* category);
+		
+		status_t					Init(void);
+		
+		status_t					LoadToken();
+		status_t					GetNewToken();
+		status_t					SaveToken();
+		
+		BList*						GetCategories(){return categories;};
+		BList*						GetTasks(Category* category){return tasks;};
 	private:
 		BString token;
-		BList* categories;
-		BList* tasks;
+		BObjectList<Task>*		tasks;
+		BObjectList<BString>*	categories;
+		
 };
 
 const int32 LOGIN_CODE=700;
