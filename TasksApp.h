@@ -1,5 +1,5 @@
-#ifndef HAIKUTODO_H
-#define HAIKUTODO_H
+#ifndef TaskApp_H
+#define TaskApp_H
 
 #include <Application.h>
 #include <Locale.h>
@@ -8,10 +8,10 @@
 #include "Task.h"
 
 #undef B_TRANSLATION_CONTEXT
-#define B_TRANSLATION_CONTEXT "HaikuToDo"
+#define B_TRANSLATION_CONTEXT "TaskApp"
 
 #define	TASK_MIMETYPE	"text/task"
-#define APP_SIG			"application/x-vnd.Task"
+#define APP_SIG			"application/x-vnd.Tasks"
 
 #define TASK_DIRECTORY	"Tasks"
 
@@ -39,10 +39,10 @@ struct attrib sDefaultAttributes[] = {
 
 
 
-class HaikuToDo : public BApplication {
+class TaskApp : public BApplication {
 public:
-					HaikuToDo();
-					~HaikuToDo();
+					TaskApp();
+					~TaskApp();
 
 	/*setting up the folder and Mimetype
 	  if the user want ot login into google we need to
