@@ -8,6 +8,8 @@
 
 #include <time.h>
 
+#include "Category.h"
+
 class Task : public BArchivable{
 public:
 							Task();
@@ -24,8 +26,8 @@ public:
 			bool			IsCompleted(void) { return completed;};
 			void			Complete(bool newCompleted=true) { completed=newCompleted;};
 	
-	const	char*			Category(void) { return category.String();};
-			void			SetCategory(BString newCategory) {category.SetTo(newCategory);}
+			Category		GetCategory(void) { return category;};
+			void			SetCategory(Category newCategory) {category=newCategory;}
 			
 			time_t			LastUpdate(void){return updated;};
 			void			SetLastUpdate(bigtime_t newTime){ updated=newTime; };
@@ -40,6 +42,12 @@ public:
 			uint32			Priority(void){return priority;};
 			void			SetPriority(uint32 newPriority){priority=newPriority;};
 			
+			int32			ID(void){return id;};
+			void			SetID(int32 newID){id=newID;};
+
+	const	char*			URL(void){return url.String();};
+			void			SetURL(BString newURL){url=newURL;};
+
 			
 			bool			operator==(const Task& task) const;
 
@@ -51,20 +59,22 @@ protected:
 private:
 			BString			title;
 			bool			completed;
-			BString			category;
+			Category		category;
 			time_t			updated; //this should be hidden at least in the tracker
 			
 			//this are optional
 			BString			notes;
 			time_t			due;  //time when this todo should be finished
 			
-			//should we implement the id, etag, selfLink
-			
 			
 			/*this is haiku only supported ... we maybe blend this into notes or title or better calculate
 			  the position (from the google task out of this
 			*/
 			uint32			priority;
+			
+			// we should implement the id, etag, selfLink
+			int32			id;
+			BString			url;
 		
 };
 

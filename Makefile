@@ -30,9 +30,11 @@ APP_MIME_SIG = application/x-vnd.Tasks
 #	Also note that spaces in folder names do not work well with this Makefile.
 SRCS =	Task.cpp \
 		TasksApp.cpp \
-		TaskFS.cpp \
-		TaskGoogle.cpp \
-		Settings.cpp
+		TaskFS.cpp 
+#		Settings.cpp
+
+#		TaskGoogle.cpp \
+
 
 #	Specify the resource definition files to use. Full or relative paths can be
 #	used.

@@ -7,6 +7,7 @@
 #include "TaskColumns.h"
 #include "TaskSync.h"
 #include "TasksApp.h"
+#include "Category.h"
 
 
 struct attrib {
@@ -36,20 +37,22 @@ public:
 									~TaskFS();
 	virtual	status_t				Init(void);
 	
-	virtual	BObjectList<BString>*	GetCategories(void);
+	virtual	BObjectList<Category>*	GetCategories(void){return categoryList;};
 	virtual	BObjectList<Task>*		GetTasks(void);
-	virtual	BObjectList<Task>*		GetTasks(BString categorie);
+	virtual	BObjectList<Task>*		GetTasks(Category forCategorie);
 	
 	virtual status_t				UpdateTasks(BObjectList<Task>*);
-	virtual status_t				UpdateCategories(BObjectList<BString>*);
+	virtual status_t				UpdateCategories(BObjectList<Category>*);
 	
 private:
 			status_t				PrepareFirstStart(void);
 			status_t				TaskToFile(Task *theTask);
-			Task*					FileToTask(BFile *theFile);
+			Task*					FileToTask(entry_ref theEntryRef);
 			
 			BDirectory				tasksDir;
 			
+			BObjectList<Task>*		taskList;
+			BObjectList<Category>*	categoryList;
 		
 };
 

@@ -35,10 +35,14 @@ Task::Task(BMessage *message)
 	BString kind;
 	BString updateString;
 	BString dueString;
-	BString statusString;	
+	BString statusString;
+	BString categoryString;
+	
 	message->FindString("title",&title);
 	
-	message->FindString("category",&category);
+	if (message->FindString("category",&categoryString) == B_OK){
+		category=Category(categoryString.String());
+	}
 	
 	if (message->FindString("update",&updateString) == B_OK) {
 		//convert updateString into timeformat
@@ -79,7 +83,7 @@ status_t Task::Archive(BMessage* archive, bool deep)
 	BString dueString;
 	BArchivable::Archive(archive, deep);
 	archive->AddString("title",title.String());
-	archive->AddString("category",category.String());
+	archive->AddString("category",category.Name());
 	archive->AddString("update",updateString);
 	if (notes.CountChars()>0)
 		archive->AddString("notes",notes.String());

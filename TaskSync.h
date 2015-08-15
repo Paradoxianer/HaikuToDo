@@ -4,6 +4,7 @@
 #include <String.h>
 #include <ObjectList.h>
 #include "Task.h"
+#include "Category.h"
 
 
 class TaskSync {
@@ -21,7 +22,7 @@ class TaskSync {
 	/**
 	 * returns a List of BString of all Categories
 	 */
-	virtual	BObjectList<BString>*	GetCategories()				= 0;
+	virtual	BObjectList<Category>*	GetCategories()				= 0;
 	
 	/**
 	 * returns a List of Task Objects 
@@ -30,7 +31,7 @@ class TaskSync {
 	
 	virtual status_t				UpdateTasks(BObjectList<Task>*) = 0;
 	
-	virtual status_t				UpdateCategories(BObjectList<BString>*) = 0;
+	virtual status_t				UpdateCategories(BObjectList<Category>*) = 0;
 	
 	
 };
