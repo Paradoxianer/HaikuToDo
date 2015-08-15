@@ -59,12 +59,6 @@ Task::Task(BMessage *message)
 }
 
 
-Task::Task(BFile toDoFile)
-{
-	Init();
-	//Read all Attributes from File
-}
-
 
 void Task::Init(void)
 {
@@ -110,12 +104,6 @@ BArchivable* Task::Instantiate(BMessage* archive)
    if ( !validate_instantiation(archive, "Task") )
       return NULL;
    return new Task(archive);
-}
-
-
-status_t Task::WriteToFile(BFile toDoFile)
-{
-	//write Attributes
 }
 
 

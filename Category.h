@@ -3,4 +3,9 @@
 
 
 class Category {
+	public:
+		Category(char *category);
+	
+	private:
+		BString *category;
 }

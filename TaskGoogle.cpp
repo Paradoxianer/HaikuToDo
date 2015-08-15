@@ -1,4 +1,4 @@
-#include "GoogleConnect.h"
+#include "TaskGoogle.h"
 
 GoogleConnect::GoogleConnect()
 {

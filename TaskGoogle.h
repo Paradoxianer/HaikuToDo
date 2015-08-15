@@ -19,7 +19,7 @@ class TaskGoogle : public TaskSync{
 		status_t					SaveToken();
 		
 		BList*						GetCategories(){return categories;};
-		BList*						GetTasks(Category* category){return tasks;};
+		BList*						GetTasks(BString* category){return tasks;};
 	private:
 		BString token;
 		BObjectList<Task>*		tasks;

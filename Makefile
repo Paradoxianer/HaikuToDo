@@ -28,9 +28,10 @@ APP_MIME_SIG = application/x-vnd.Tasks
 #	means this Makefile will not work correctly if two source files with the
 #	same name (source.c or source.cpp) are included from different directories.
 #	Also note that spaces in folder names do not work well with this Makefile.
-SRCS =	TaskGoogle.cpp \
+SRCS =	Task.cpp \
 		TasksApp.cpp \
-		Task.cpp \
+		TaskFS.cpp \
+		TaskGoogle.cpp \
 		Settings.cpp
 
 #	Specify the resource definition files to use. Full or relative paths can be

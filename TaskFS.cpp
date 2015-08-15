@@ -1,207 +1,138 @@
 
 #include <iostream>
-#include <cstdlib>
+#include <stdio.h>
 
-#include <posix/sys/stat.h>
 #include <kernel/fs_index.h>
+
+#include <Locale.h>
+#include <Catalog.h>
+#include <Resources.h>
 
 #include "Task.h"
 #include "TaskFS.h"
+#include "TaskColumns.h"
+#include "TasksApp.h"
+
 
 TaskFS::TaskFS()
 {
-	error=new BAlert("FileSystem error",
-		"There was an error in the BeFS backend",
-		"OK",NULL,NULL,B_WIDTH_AS_USUAL,B_OFFSET_SPACING, B_STOP_ALERT);
-	BPath path;
-	if(find_directory(B_USER_SETTINGS_DIRECTORY,&path)!=B_OK)
-	{
-		error->Go();
-		exit(2);
-	}
-	BDirectory storage;
-	BDirectory tasksDir;
-	BDirectory categoriesDir;
-	BDirectory settings(path.Path());
-	settings.CreateDirectory("HaikuToDo",&storage);
-	storage.CreateDirectory("Tasks",&tasksDir);
-	storage.CreateDirectory("Categories",&categoriesDir);
-	path.Append("HaikuToDo");
-	BPath taskPath=path;
-	taskPath.Append("Tasks");
-	BPath categoriesPath=path;
-	categoriesPath.Append("Categories");
-	tasks=BString(taskPath.Path());
-	categories=BString(categoriesPath.Path());
-	
-	struct stat st;
-	settings.GetStat(&st);
-	
-	volume=st.st_dev;
-	
-	fs_create_index(st.st_dev,"HAIKU_TO_DO:Category",B_STRING_TYPE,0);
-	
 }
+
 
 TaskFS::~TaskFS()
 {
 	
 }
 
-void TaskFS::LoadTasks(const char* category, BListView* tasksList)
+
+status_t TaskFS::Init(void)
 {
-	BString predicate("HAIKU_TO_DO:Category=**");
-	if(strcmp(category,"ALL")==0)
-		predicate.Append("**");
-	else
-		predicate.Append(category);
-	BQuery query;
-	BVolume volume;
-	BVolumeRoster volumeRoster;
-	while(volumeRoster.GetNextVolume(&volume)==B_OK)
-	{
-		if(volume.KnowsQuery())
-		{
-			query.Clear();
-			query.SetVolume(&volume);
-			query.SetPredicate(predicate.String());
-			status_t rc=query.Fetch();
-			if(rc!=B_OK)
-			{
-				error->Go();
-			}
-			BEntry entry;
-			while(query.GetNextEntry(&entry)==B_OK)
-			{
-				char name[8192];
-				entry.GetName(name);
-				BFile file(&entry,B_READ_ONLY);
-				off_t file_size=0;
-				file.GetSize(&file_size);
-				char buffer[file_size+1024];
-				file.Read(buffer,file_size);
-				BString finished;
-				file.ReadAttrString("HAIKU_TO_DO:Finished",&finished);
-				bool fin;
-				if(finished.Compare("FINISHED")==0)
-				{
-					fin=true;
-				}
-				else
-				{
-					fin=false;
-				}
-				Task* tk=new Task((const char*)name,(const char*)buffer,"ALL",fin);
-				tasksList->AddItem(tk);
-			}
-		}
+}
+
+	
+BObjectList<BString>*	TaskFS::GetCategories(void)
+{
+}
+
+
+BObjectList<Task>* TaskFS::GetTasks(void)
+{
+}
+
+
+BObjectList<Task>* TaskFS::GetTasks(BString categorie)
+{
+}
+
+	
+status_t TaskFS::UpdateTasks(BObjectList<Task>*)
+{
+}
+
+
+status_t TaskFS::UpdateCategories(BObjectList<BString>*)
+{
+	//check if they are already tehre
+}
+
+status_t TaskFS::PrepareFirstStart()
+{
+	//first create the task directory
+	BPath homeDir;
+	find_directory(B_USER_DIRECTORY, &homeDir);
+
+	BString tasksDirString = homeDir.Path();
+	tasksDirString << "/" << TASK_DIRECTORY;
+
+	tasksDir = BDirectory(tasksDirString.String());
+	//if the folder was not found create it
+	if (tasksDir.InitCheck() == B_ENTRY_NOT_FOUND) {
+		BDirectory homeDirectory(homeDir.Path());
+		status_t result = homeDirectory.CreateDirectory(TASK_DIRECTORY,
+			&tasksDir);
+		if (result != B_OK)
+			printf("Failed to create tasks directory (%s)\n",
+				strerror(result));
+		ssize_t written = tasksDir.WriteAttr("_trk/columns_le", B_RAW_TYPE,
+			0, task_columns, sizeof(task_columns));
+		if (written < 0)
+			printf("Failed to write column info (%s)\n", strerror(written));
 	}
 	
-}
-
-void
-TaskFS::LoadCategories(BListView* categoriesList)
-{
-		BDirectory dir(categories);
-		int32 entries=dir.CountEntries();
-		for(int32 i=0;i<entries;i++)
-		{
-			char name[8192];
-			BEntry entry;
-			dir.GetNextEntry(&entry);
-			entry.GetName(name);
-			BFile file(&entry,B_READ_ONLY);
-			off_t file_size=0;
-			file.GetSize(&file_size);
-			char buffer[file_size+1024];
-			file.Read(buffer,file_size);
-			Category* cat=new Category((const char*)name,(const char*)buffer);
-			categoriesList->AddItem(cat);
+	//set the MimeType
+	BMimeType mime(TASK_MIMETYPE);
+	//later do better check
+	bool valid = mime.IsInstalled();
+	if (!valid) {
+		mime.Install();
+		mime.SetShortDescription(B_TRANSLATE_CONTEXT("Tasks",
+			"Short mimetype description"));
+		mime.SetLongDescription(B_TRANSLATE_CONTEXT("Tasks",
+			"Long mimetype description"));
+		//get the icon from our Ressources
+		BResources* res = BApplication::AppResources();
+		if (res != NULL){
+			size_t size;
+			const void* data = res->LoadResource(B_VECTOR_ICON_TYPE, 2, &size);
+			if (data!=NULL)
+				mime.SetIcon((const uint8 *)data, sizeof(data));
 		}
-}
+		mime.SetPreferredApp(APP_SIG);
 
-bool
-TaskFS::AddCategory(const char* name, const char* filename)
-{
-	BString filn(filename);
-	BDirectory dir(categories);
-	BFile file;
-	dir.CreateFile(name,&file);
-	file.Write(filn,filn.Length());
-}
+		// add default task fields to meta-mime type
+		BMessage fields;
+		for (int32 i = 0; sDefaultAttributes[i].attribute; i++) {
+			fields.AddString("attr:public_name", sDefaultAttributes[i].name);
+			fields.AddString("attr:name", sDefaultAttributes[i].attribute);
+			fields.AddInt32("attr:type", sDefaultAttributes[i].type);
+			fields.AddBool("attr:viewable", sDefaultAttributes[i].isPublic);
+			fields.AddBool("attr:editable", sDefaultAttributes[i].editable);
+			fields.AddInt32("attr:width", sDefaultAttributes[i].width);
+			fields.AddInt32("attr:alignment", B_ALIGN_LEFT);
+			fields.AddBool("attr:extra", false);
+		}
+		mime.SetAttrInfo(&fields);
+	}
 
-bool
-TaskFS::AddTask(const char* title, const char* description, const char* category)
-{
-	BString desc(description);
-	BDirectory dir(tasks);
-	BFile file;
-	dir.CreateFile(title,&file);
-	file.Write(desc,desc.Length());
-	file.WriteAttrString("HAIKU_TO_DO:Category",new BString(category));
-	file.WriteAttrString("HAIKU_TO_DO:Finished",new BString("UNFINISHED"));
-}
-
-bool
-TaskFS::RemoveTask(const char* title, const char* description, const char* category)
-{
-	BString predicate("(HAIKU_TO_DO:Category=**)&&(name=");
-	predicate.Append(title);
-	predicate.Append(")");
-	
-	BQuery query;
-	BVolume volume;
+	// create indices on all volumes for the found attributes.
+	int32 count = 8;
 	BVolumeRoster volumeRoster;
-	while(volumeRoster.GetNextVolume(&volume)==B_OK)
-	{
-		if(volume.KnowsQuery())
-		{
-			query.Clear();
-			query.SetVolume(&volume);
-			query.SetPredicate(predicate.String());
-			status_t rc=query.Fetch();
-			if(rc!=B_OK)
-			{
-				error->Go();
-			}
-			BEntry entry;
-			while(query.GetNextEntry(&entry)==B_OK)
-			{
-				entry.Remove();
-			}
+	BVolume volume;
+	while (volumeRoster.GetNextVolume(&volume) == B_OK) {
+		for (int32 i = 0; i < count; i++) {
+			if (sDefaultAttributes[i].isPublic == true)
+				fs_create_index(volume.Device(), sDefaultAttributes[i].attribute,
+					sDefaultAttributes[i].type, 0);
 		}
 	}
 }
 
-bool
-TaskFS::MarkAsComplete(const char* title, const char* description, const char* category)
+
+status_t TaskFS::TaskToFile(Task *theTask)
 {
-	BString predicate("(HAIKU_TO_DO:Category=**)&&(name=");
-	predicate.Append(title);
-	predicate.Append(")");
-	
-	BQuery query;
-	BVolume volume;
-	BVolumeRoster volumeRoster;
-	while(volumeRoster.GetNextVolume(&volume)==B_OK)
-	{
-		if(volume.KnowsQuery())
-		{
-			query.Clear();
-			query.SetVolume(&volume);
-			query.SetPredicate(predicate.String());
-			status_t rc=query.Fetch();
-			if(rc!=B_OK)
-			{
-				error->Go();
-			}
-			BEntry entry;
-			while(query.GetNextEntry(&entry)==B_OK)
-			{
-				BFile file(&entry,B_READ_ONLY);
-				file.WriteAttrString("HAIKU_TO_DO:Finished",new BString("FINISHED"));
-			}
-		}
-	}
 }
-		
+
+
+Task* TaskFS::FileToTask(BFile *theFile)
+{
+}

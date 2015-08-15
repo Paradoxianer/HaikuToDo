@@ -1,15 +1,15 @@
-#ifndef TASKSYNC_H
-#define TASKSYNC_H
+#ifndef TASK_SYNC_H
+#define TASK_SYNC_H
 
-#include <vector>
+#include <String.h>
+#include <ObjectList.h>
 #include "Task.h"
-#include "TaskManager.h"
 
 
 class TaskSync {
 	public:
-									TaskSync(void){};
-									~TaskSync(void){};
+			  						TaskSync(void){};
+	virtual							~TaskSync(void){};
 		
 	/**
 	 *is called to prepare the TaskSync Object for Running
@@ -21,7 +21,7 @@ class TaskSync {
 	/**
 	 * returns a List of BString of all Categories
 	 */
-	virtual	BObjectList<String>*	GetCategories()				= 0;
+	virtual	BObjectList<BString>*	GetCategories()				= 0;
 	
 	/**
 	 * returns a List of Task Objects 
@@ -30,7 +30,7 @@ class TaskSync {
 	
 	virtual status_t				UpdateTasks(BObjectList<Task>*) = 0;
 	
-	virtual status_t				UpdateCategories(BObjectList<String>*) = 0;
+	virtual status_t				UpdateCategories(BObjectList<BString>*) = 0;
 	
 	
 };
