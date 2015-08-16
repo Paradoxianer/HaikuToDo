@@ -3,11 +3,15 @@
 
 #include <FindDirectory.h>
 #include <StorageKit.h>
+#include <Locale.h>
+#include <Catalog.h>
 
 #include "TaskColumns.h"
 #include "TaskSync.h"
-#include "TasksApp.h"
 #include "Category.h"
+
+#undef B_TRANSLATION_CONTEXT
+#define B_TRANSLATION_CONTEXT "TaskApp"
 
 
 struct attrib {
@@ -21,7 +25,6 @@ struct attrib {
 
 const attrib sDefaultAttributes[] = {
 	{ "META:completed", B_BOOL_TYPE, true, true, 40, B_TRANSLATE("Completed") },
-	{ "META:title", B_STRING_TYPE, true, true, 120, B_TRANSLATE("Titel") },
 	{ "META:category",B_STRING_TYPE, true, true, 120, B_TRANSLATE("Category") },
 	{ "META:notes", B_STRING_TYPE, true, true, 50, B_TRANSLATE("Notes") },
 	{ "META:priority", B_UINT32_TYPE, true, true, 50, B_TRANSLATE("Priority") },
@@ -46,8 +49,10 @@ public:
 	
 private:
 			status_t				PrepareFirstStart(void);
-			status_t				TaskToFile(Task *theTask);
+			status_t				TaskToFile(Task *theTask, bool overwrite = true);
 			Task*					FileToTask(entry_ref theEntryRef);
+			
+			entry_ref*				FileForId(Task *theTask);
 			
 			BDirectory				tasksDir;
 			

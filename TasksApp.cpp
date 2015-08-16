@@ -14,6 +14,11 @@ main(int argc, const char *argv[])
 TaskApp::TaskApp()
 	:	BApplication(APP_SIG)
 {
+	FirstStart();
+	
+	fsSync = new TaskFS();
+	fsSync->Init();
+	fsSync->GetTasks();
 }
 
 
@@ -24,6 +29,7 @@ TaskApp::~TaskApp()
 
 status_t TaskApp::FirstStart()
 {
+	//set up setting files
 	return B_OK;
 }
 

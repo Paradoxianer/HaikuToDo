@@ -4,8 +4,7 @@
 
 #include <kernel/fs_index.h>
 
-#include <Locale.h>
-#include <Catalog.h>
+
 #include <Resources.h>
 
 #include "Task.h"
@@ -60,6 +59,7 @@ BObjectList<Task>* TaskFS::GetTasks(Category forCategorie)
 	
 status_t TaskFS::UpdateTasks(BObjectList<Task>*)
 {
+	
 }
 
 
@@ -80,7 +80,7 @@ status_t TaskFS::PrepareFirstStart()
 
 	tasksDir = BDirectory(tasksDirString.String());
 	//if the folder was not found create it
-	if (tasksDir.InitCheck() == B_ENTRY_NOT_FOUND) {
+	if (tasksDir.InitCheck() != B_OK) {
 		BDirectory homeDirectory(homeDir.Path());
 		err = homeDirectory.CreateDirectory(TASK_DIRECTORY,
 			&tasksDir);
@@ -143,8 +143,24 @@ status_t TaskFS::PrepareFirstStart()
 }
 
 
-status_t TaskFS::TaskToFile(Task *theTask)
+status_t TaskFS::TaskToFile(Task *theTask, bool overwrite)
 {
+	BFile	taskFile;
+	BEntry	entry;
+	//first check if the File already exists..
+	//if not and overwrite is on check the ids..
+	// and search for the correspondending file...
+	if (tasksDir.FindEntry(theTask->Title(),&entry) == B_OK) {
+		tasksDir.CreateFile(theTask->Title(),&taskFile,overwrite);
+	} 
+	else {
+		if (overwrite == true) {
+			entry.SetTo((const entry_ref*)FileForId(theTask));
+		}
+		
+		
+	}
+	
 	
 }
 
@@ -185,4 +201,20 @@ Task* TaskFS::FileToTask(entry_ref theEntryRef)
 	newTask->SetID(id);
 	newTask->SetURL(url);
 	return newTask;
+}
+
+entry_ref* TaskFS::FileForId(Task *theTask)
+{
+	//scan through all files for the ID
+	int32		fileID;
+	entry_ref	*ref;
+	BNode		theNode;
+	
+	while (tasksDir.GetNextRef(ref) == B_OK){
+		theNode.SetTo(ref);
+		if (theNode.ReadAttr("META:task_id", B_INT32_TYPE, 0, &fileID, sizeof(fileID)) == B_OK)
+			if (fileID==theTask->ID() && fileID != 0)
+				return ref;
+	}
+	return NULL;
 }

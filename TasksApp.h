@@ -6,12 +6,14 @@
 #include <Catalog.h>
 
 #include "Task.h"
+#include "TaskFS.h"
+
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "TaskApp"
 
 #define	APP_SIG	"application/x-vnd.Tasks"
-#define TASK_DIRECTORY "task"
+#define TASK_DIRECTORY "tasks"
 
 #define TASK_MIMETYPE "application/x-tasks"
 
@@ -37,7 +39,9 @@ public:
 static	int32		EventLoop(void *data);
 
 private:
-		BString				taskDir;
+		
+		TaskFS				*fsSync;
+		
 		sem_id				fEventLock;
 		BList				fEvents;
 		BList				fAllEvents;

@@ -1,4 +1,4 @@
-resource app_signature "application/x-vnd.Tasks"
+resource app_signature "application/x-vnd.Tasks";
 
 resource app_version {
 	major  = 1,
