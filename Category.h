@@ -6,12 +6,16 @@
 #include <String.h>
 
 
-class Category {
-
+class Category : public BArchivable {
 public:
-							Category() {};
-							Category(const char* newName) {name=newName;};
+							Category();
+							Category(const char* newName);
+							Category(BMessage *archive);
 							~Category() {};
+							
+							
+			status_t		Archive(BMessage* archive, bool deep = true);
+	static	BArchivable*	Instantiate(BMessage* archive);
 	
 	const	char*			Name(void) {return name.String();};
 			void			SetName(BString newName){name.SetTo(newName);};
@@ -26,10 +30,10 @@ public:
 			void			SetURL(BString newURL){url=newURL;};
 
 			
-			bool			operator==(const Category& task) const {};
+			bool			operator==(const Category& task) const;
 
 protected:
-			void			Init(void){}
+			void			Init(void);
 
 		
 private:
