@@ -145,23 +145,41 @@ status_t TaskFS::PrepareFirstStart()
 
 status_t TaskFS::TaskToFile(Task *theTask, bool overwrite)
 {
-	BFile	taskFile;
-	BEntry	entry;
+	BFile		taskFile;
+	BEntry		entry;
+	status_t	err;
+	
+	bool	completed	= theTask->IsCompleted();
+	uint32	priority	= theTask->Priority();
+	time_t	due			= theTask->DueTime();
+	int32	id			= theTask->ID();
+	
 	//first check if the File already exists..
 	//if not and overwrite is on check the ids..
 	// and search for the correspondending file...
 	if (tasksDir.FindEntry(theTask->Title(),&entry) == B_OK) {
-		tasksDir.CreateFile(theTask->Title(),&taskFile,overwrite);
+		taskFile.SetTo((const BEntry*)&entry,B_READ_WRITE);
+		err = B_OK;
 	} 
 	else {
-		if (overwrite == true) {
-			entry.SetTo((const entry_ref*)FileForId(theTask));
+		entry_ref *ref= FileForId(theTask);
+		if (ref==NULL){
+			tasksDir.CreateFile(theTask->Title(),&taskFile,overwrite);
+			tasksDir.FindEntry(theTask->Title(),&entry);
 		}
-		
-		
+		else {
+			entry.SetTo(ref);
+			taskFile.SetTo((const BEntry*)ref,B_READ_WRITE);
+		}
 	}
-	
-	
+	taskFile.WriteAttr("META:completed",B_BOOL_TYPE, 0, &completed, sizeof(completed));
+	entry.Rename(theTask->Title());
+	taskFile.WriteAttrString("META:category",new BString(theTask->GetCategory().Name()));
+	taskFile.WriteAttrString("META:notes",new BString(theTask->Notes()));
+	taskFile.WriteAttr("META:priority", B_UINT32_TYPE, 0, &priority, sizeof(priority));
+	taskFile.WriteAttr("META:due", B_TIME_TYPE, 0, &due, sizeof(due));
+	taskFile.WriteAttr("META:task_id", B_INT32_TYPE, 0, &id, sizeof(id));
+	taskFile.WriteAttrString("META:task_url",new BString(theTask->URL()));
 }
 
 
