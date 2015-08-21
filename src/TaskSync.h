@@ -3,11 +3,13 @@
 
 #include <String.h>
 #include <ObjectList.h>
+#include <Handler.h>
+
 #include "Task.h"
 #include "Category.h"
 
 
-class TaskSync {
+class TaskSync : public BHandler {
 	public:
 			  						TaskSync(void){};
 	virtual							~TaskSync(void){};
