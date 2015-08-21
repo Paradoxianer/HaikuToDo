@@ -29,12 +29,16 @@ APP_MIME_SIG = application/x-vnd.Tasks
 #	same name (source.c or source.cpp) are included from different directories.
 #	Also note that spaces in folder names do not work well with this Makefile.
 SRCS =	Category.cpp \
+		InputRequest.cpp \
+		InputRequestView.cpp \
 		Task.cpp \
-		TasksApp.cpp \
-		TaskFS.cpp 
+		TaskFS.cpp \
+		TaskGoogle.cpp \
+		TasksApp.cpp 
+		
 #		Settings.cpp
 
-#		TaskGoogle.cpp \
+
 
 
 #	Specify the resource definition files to use. Full or relative paths can be
@@ -43,7 +47,7 @@ RDEFS = Tasks.rdef
 
 #	Specify the resource files to use. Full or relative paths can be used.
 #	Both RDEFS and RSRCS can be utilized in the same Makefile.
-RSRCS = 
+RSRCS = InputRequest.rsrc
 
 # End Pe/Eddie support.
 # @<-src@ 
