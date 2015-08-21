@@ -18,6 +18,9 @@
 #define TASK_MIMETYPE "application/x-tasks"
 
 
+static const char* tasksKeyring = "Tasks";
+
+
 class TaskApp : public BApplication {
 public:
 					TaskApp();
