@@ -4,76 +4,79 @@
 #include <iostream>
 #include <vector>
 
+
+
 #include "TaskSync.h"
 #include "Task.h"
+#include "TasksApp.h"
 
-class TaskGoogle : public TaskSync{
+
+#define CLIENT_ID "318709342848-0h9712v3kbpcv1r7oc8krdrfu22ohlld.apps.googleusercontent.com"
+#define CLIENT_SECRET "WyyNzE2JO-HUQqL5RG2VYzz2"
+#define REDIRECT_URI "urn:ietf:wg:oauth:2.0:oob"
+
+
+class TaskGoogle : public TaskSync {
 	public:
 									TaskGoogle();
 									~TaskGoogle();
-		
+		/*
+		 * Init calls LoadToken wich trys to load the refrech token
+		 * from the KeyManager, if this fails we try force the user to 
+		 * google 
+		 */
 		status_t					Init(void);
 		
-		status_t					LoadToken();
-		status_t					GetNewToken();
-		status_t					SaveToken();
+		// Load Refreshtoken from the Haiku KeyManager
+		status_t					LoadToken(void);
 		
-		BObjectList<BString>*		GetCategories(){return categories;};
-		BObjectList<Task>*			GetTasks(BString* category){return tasks;};
-	private:
-		BString token;
-		BObjectList<Task>*		tasks;
-		BObjectList<BString>*	categories;
+		/*
+		 * Called if we need Request the Acces String from Google
+		 * This opens the Login Dialog and opens the Website 
+		 * wich should show the AccesString
+		 * TODO make it non blockable:
+		 * The Dialog Sends a Message with the AccessString
+		 * to this App wich is forwarded to This Handler Message Recived
+		 */
+		char*						RequestAccessString(void);
+		
+		/* This is called to Request a real AccesToken from Google
+		 * if a AccesString is handed over we use it for the the first
+		 * Request 
+		 * else we try to use the refresh_token wich was hopefully loaded
+		 * before. If not jus return an error
+		 *
+		 */
+		status_t					RequestTocken(BString accesString);
+		
+		/*
+		 * Login and donwload all Categories and Tasks
+		 */
+		status_t					Login(BString token);
+		
+		/*
+		 * This Methode saves the refresh_token once we recives it
+		 */ 
+		status_t					SaveToken(void);
+		
+		
+		status_t					Load(void);
+		
+		BObjectList<Category>*		GetCategories(){return categoryList;};
+		BObjectList<Task>*			GetTasks(){return taskList;};
+		
+		status_t					UpdateTasks(BObjectList<Task>*);
+	
+		status_t					UpdateCategories(BObjectList<Category>*);
+
+private:
+		
+		BString						token;
+		BString						refreshToken;
+		BObjectList<Task>*			taskList;
+		BObjectList<Category>*		categoryList;
 		
 };
 
-const int32 LOGIN_CODE=700;
-
-class LoginDialog : public BWindow{
-	public:
-		LoginDialog(TaskSync* auth) : BWindow(BRect(100,100,300,300),"Login code",B_MODAL_WINDOW,0)
-			, auth(auth)
-		{
-			BView* main=new BView(Bounds(),NULL,B_FOLLOW_ALL_SIDES,B_WILL_DRAW);
-			main->SetViewColor(220,220,220);
-			
-			code=new BTextControl(BRect(10,10,200,100),"Code","Code: ","",NULL);
-			main->AddChild(code);
-			
-			login=new BButton(BRect(10,110,200,200),NULL,"Login",new BMessage(LOGIN_CODE));
-			main->AddChild(login);
-			
-			AddChild(main);
-		}
-		~LoginDialog()
-		{
-				
-		}
-	private:
-		void
-		MessageReceived(BMessage* msg)
-		{
-			switch(msg->what)
-			{
-				case LOGIN_CODE:
-				{
-					BString code(code->Text());
-					std::cout << "Google Code is " << code << std::endl;
-					auth->NextStep(code);
-					Quit();
-					break;
-				}
-				/*case CANCEL:
-				{
-					Quit();
-				}*/
-				default:
-					BWindow::MessageReceived(msg);
-			}
-		}
-		BTextControl* code;
-		BButton* login;
-		TaskSync* auth;
-};
 
 #endif

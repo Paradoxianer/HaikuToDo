@@ -1,19 +1,54 @@
-#include "TaskGoogle.h"
+#include <Roster.h>
 
-GoogleConnect::GoogleConnect()
+#include <NetworkKit.h>
+#include <UrlRequest.h>
+#include <UrlSynchronousRequest.h>
+#include <UrlProtocolRoster.h>
+#include <HttpHeaders.h>
+#include <HttpRequest.h>
+
+#include <Key.h>
+#include <KeyStore.h>
+#include <private/shared/Json.h>
+
+#include "TaskGoogle.h"
+#include "InputRequest.h"
+#include "Internet.hpp"
+
+TaskGoogle::TaskGoogle()
 {
-	categories=new BObjectList<BString>(20);
-	tasks=new BObjectList<Task>(20);
+	categoryList=new BObjectList<Category>(20);
+	taskList=new BObjectList<Task>(20);
 }
 
-GoogleConnect::~GoogleConnect()
+TaskGoogle::~TaskGoogle()
 {
 	
 }
 
-bool
-GoogleConnect::Init()
+status_t TaskGoogle::Init(void)
 {
+	//first try to load token
+	if (LoadToken()!=B_OK)
+		RequestAccessString();
+}
+
+status_t TaskGoogle::LoadToken(){
+	BPasswordKey key;
+	BKeyStore keyStore;
+	if (keyStore.GetKey(tasksKeyring, B_KEY_TYPE_PASSWORD, "refresh_token",
+			key) == B_OK) {
+		refreshToken = key.Password();
+		return B_OK;
+	}
+	return B_ERROR;	
+	
+}
+
+
+
+char* TaskGoogle::RequestAccessString(){
+	char *accesString = new char[512];
 	BString endpoint("https://accounts.google.com/o/oauth2/auth");
 	endpoint.Append("?response_type=code");
 	endpoint.Append("&client_id=318709342848-0h9712v3kbpcv1r7oc8krdrfu22ohlld.apps.googleusercontent.com");
@@ -22,21 +57,38 @@ GoogleConnect::Init()
 	std::cout << endpoint.String() << std::endl;
 	const char *args[] = { endpoint.String(), 0 };
 	be_roster->Launch("application/x-vnd.Be.URL.http",1,const_cast<char **>(args));
-	LoginDialog* login=new LoginDialog(this);
-	login->Show();
+	InputRequest* accesReturn=new InputRequest(	B_TRANSLATE("Google Code"),
+												B_TRANSLATE("Input Code"),
+												B_TRANSLATE("Type in the Code wich Google showed you"),
+												B_TRANSLATE("OK"),
+												B_TRANSLATE("OK"));
+	if (accesReturn->Go(&accesString) == B_ERROR) {
+		accesString = NULL;
+	}
+	return accesString;
 }
 
-void
-GoogleConnect::NextStep(BString code)
+
+
+status_t TaskGoogle::RequestTocken(BString code)
 {
 	BHttpForm* form=new BHttpForm();
-	form->AddString("code",code);
-	form->AddString("client_id","318709342848-0h9712v3kbpcv1r7oc8krdrfu22ohlld.apps.googleusercontent.com");
-	form->AddString("client_secret","WyyNzE2JO-HUQqL5RG2VYzz2");
-	form->AddString("grant_type","authorization_code");
-	form->AddString("redirect_uri","urn:ietf:wg:oauth:2.0:oob");
+	//if there is no refreshToken do the "First Time Autentiation Procedure
+	if (refreshToken.Length()>0) {
+		const char * accesString = RequestAccessString();
+		form->AddString("code",accesString);
+		form->AddString("client_id",CLIENT_ID);
+		form->AddString("client_secret",CLIENT_SECRET);
+		form->AddString("grant_type","authorization_code");
+		form->AddString("redirect_uri",REDIRECT_URI);
+	}
+	else{
+		form->AddString("refresh_token",refreshToken);
+		form->AddString("client_id",CLIENT_ID);
+		form->AddString("client_secret",CLIENT_SECRET);
+		form->AddString("grant_type","refresh_token");
+	}
 	form->SetFormType(B_HTTP_FORM_URL_ENCODED);
-	
 	BString oauth2("https://www.googleapis.com/oauth2/v3/token");
 	BString tokenResponse(HaikuHTTP::GET(oauth2,form));
 	
@@ -44,13 +96,22 @@ GoogleConnect::NextStep(BString code)
 	BPrivate::BJson::Parse(tokenJson,tokenResponse);
 	tokenJson.PrintToStream();
 	
+	//this should start the counter how long the token stays valid	
 	token=BString(tokenJson.GetString("access_token","NOT_FOUND"));
-	std::cout << "Token access " << token.String() << std::endl;
-
+	if (refreshToken.Length() == 0){
+		refreshToken=new BString(tokenJson.GetString("refreshToken","NOT_FOUND"));
+		SaveToken(void);
+		std::cout << "Refresh Token" << refreshToken.String() << std::endl;
+	}
 	
+	std::cout << "Token access " << token.String() << std::endl;
+}
+
+
+status_t TaskGoogle::Load(void){
+
 	BString listUrlString("https://www.googleapis.com/tasks/v1/users/@me/lists?access_token=");
 	listUrlString.Append(token);
-	
 	BString listsResponse(HaikuHTTP::GET(listUrlString));
 	
 	BMessage listsJson;
@@ -59,8 +120,7 @@ GoogleConnect::NextStep(BString code)
 	listsJson.PrintToStream();
 	
 	BMessage userLists;
-	if(listsJson.FindMessage("items",0,&userLists)!=B_OK)
-	{
+	if(listsJson.FindMessage("items",0,&userLists)!=B_OK) {
 		std::cerr << "ERROR: 'items' not found" << std::endl;
 	}
 
@@ -97,17 +157,22 @@ GoogleConnect::NextStep(BString code)
 	{
 		be_app->WindowAt(i)->PostMessage(new BMessage(SYNC_CATEGORIES));
 	}
-
+	
 }
 
-BList*
-GoogleConnect::GetCategories()
-{
-	return categories;
+status_t TaskGoogle::SaveToken(){
+	if (refreshToken.Length() > 0) {
+		BPasswordKey key(refreshToken, B_KEY_PURPOSE_WEB, "refresh_token");
+		BKeyStore keyStore;
+		keyStore.AddKeyring(tasksKeyring);
+		keyStore.AddKey(tasksKeyring, key);
+		return B_OK;
+	}
+	return B_ERROR;
 }
 
-BList*
-GoogleConnect::GetTasks(Category* cat)
+
+BList* TaskGoogle::GetTasks(Category* cat)
 {
 	//DO HTTP CONNECTION TO GOOGLE
 	BList* tks=new BList(20);
@@ -151,7 +216,5 @@ GoogleConnect::GetTasks(Category* cat)
 		Task* tk=new Task(title,notes,id.String(),false);
 		tks->AddItem(tk);
 	}
-	
-	
 	return tks;
 }
