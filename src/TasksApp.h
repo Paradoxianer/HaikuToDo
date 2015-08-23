@@ -1,5 +1,5 @@
-#ifndef TaskApp_H
-#define TaskApp_H
+#ifndef TASK_APP_H
+#define TASK_APP_H
 
 #include <Application.h>
 #include <Locale.h>
@@ -7,7 +7,7 @@
 
 #include "Task.h"
 #include "TaskFS.h"
-
+#include "TaskGoogle.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "TaskApp"
@@ -44,7 +44,7 @@ static	int32		EventLoop(void *data);
 private:
 		
 		TaskFS				*fsSync;
-		
+		TaskGoogle			*gSync;
 		sem_id				fEventLock;
 		BList				fEvents;
 		BList				fAllEvents;

@@ -17,8 +17,11 @@ TaskApp::TaskApp()
 	FirstStart();
 	
 	fsSync = new TaskFS();
+	gSync	= new TaskGoogle();
 	fsSync->Init();
 	fsSync->GetTasks();
+	gSync->Init();
+	gSync->GetTasks();
 }
 
 
