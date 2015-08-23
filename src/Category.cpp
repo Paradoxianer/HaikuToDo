@@ -12,6 +12,17 @@ Category::Category(const char* newName)
 	name=newName;
 }
 
+Category::Category(const char* newName, int32 newID, time_t lastUpdate, const char* newURL)
+	: BArchivable()
+{
+	Init();
+	name.SetTo(newName);
+	id		= newID;
+	updated	= lastUpdate;
+	url.SetTo(newURL);
+}
+
+
 Category::Category(BMessage *message)
 	:BArchivable(message)
 {

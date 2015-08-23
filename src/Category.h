@@ -10,6 +10,7 @@ class Category : public BArchivable {
 public:
 							Category();
 							Category(const char* newName);
+							Category(const char* newName, int32 newID, time_t lastUpdate, const char* newURL);
 							Category(BMessage *archive);
 							~Category() {};
 							
