@@ -1,14 +1,8 @@
 #ifndef GOOGLE_CONNECT_H
 #define GOOGLE_CONNECT_H
 
-#include <iostream>
-#include <vector>
-
-
-
 #include "TaskSync.h"
 #include "Task.h"
-#include "TasksApp.h"
 
 
 #define CLIENT_ID "318709342848-0h9712v3kbpcv1r7oc8krdrfu22ohlld.apps.googleusercontent.com"
@@ -47,7 +41,7 @@ class TaskGoogle : public TaskSync {
 		 * before. If not jus return an error
 		 *
 		 */
-		status_t					RequestTocken(BString accesString);
+		status_t					RequestToken(char* accesString);
 		
 		/*
 		 * Login and donwload all Categories and Tasks
@@ -61,13 +55,19 @@ class TaskGoogle : public TaskSync {
 		
 		
 		status_t					Load(void);
+		status_t					LoadCategories(void);
+		status_t					LoadTasks(Category cat);
 		
-		BObjectList<Category>*		GetCategories(){return categoryList;};
-		BObjectList<Task>*			GetTasks(){return taskList;};
+		BObjectList<Category>*		GetCategories(void){return categoryList;};
+		BObjectList<Task>*			GetTasks(void){return taskList;};
 		
 		status_t					UpdateTasks(BObjectList<Task>*);
 	
 		status_t					UpdateCategories(BObjectList<Category>*);
+		
+		time_t						RFC3339ToTime(const char* timeString);
+		
+		char*						TimeToRFC3339(time_t timeT);
 
 private:
 		
