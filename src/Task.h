@@ -13,7 +13,7 @@
 class Task : public BArchivable{
 public:
 							Task();
-							Task(const char* title,const char* category,bool completed);
+							Task(const char* title,const char* category,int32 newID,bool completed);
 							Task(BMessage *message);
 						
 			status_t		Archive(BMessage* archive, bool deep = true);
