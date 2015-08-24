@@ -10,7 +10,7 @@ class Category : public BArchivable {
 public:
 							Category();
 							Category(const char* newName);
-							Category(const char* newName, int32 newID, time_t lastUpdate, const char* newURL);
+							Category(const char* newName, const char* newID, time_t lastUpdate, const char* newURL);
 							Category(BMessage *archive);
 							~Category() {};
 							
@@ -24,9 +24,9 @@ public:
 			time_t			LastUpdate(void){return updated;};
 			void			SetLastUpdate(bigtime_t newTime){ updated=newTime; };
 
-			int32			ID(void){return id;};
-			void			SetID(int32 newID){id=newID;};
-
+	const	char*			ID(void){return id.String();};
+			void			SetID(const char* newID){id.SetTo(newID);};
+			
 			BString			URL(void){return url.String();};
 			void			SetURL(BString newURL){url=newURL;};
 
@@ -42,7 +42,7 @@ private:
 			time_t			updated; //this should be hidden at least in the tracker
 			
 			// we should implement the id, etag, selfLink
-			int32			id;
+			BString			id;
 			BString			url;
 };
 

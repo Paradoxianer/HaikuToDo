@@ -12,12 +12,12 @@ Category::Category(const char* newName)
 	name=newName;
 }
 
-Category::Category(const char* newName, int32 newID, time_t lastUpdate, const char* newURL)
+Category::Category(const char* newName, const char* newID, time_t lastUpdate, const char* newURL)
 	: BArchivable()
 {
 	Init();
 	name.SetTo(newName);
-	id		= newID;
+	id.SetTo(newID);
 	updated	= lastUpdate;
 	url.SetTo(newURL);
 }
@@ -29,7 +29,7 @@ Category::Category(BMessage *message)
 	Init();
 	message->FindString("name",&name);
 	message->FindInt32("update",(int32 *)&updated);
-	message->FindInt32("id",&id);
+	message->FindString("id",&id);
 	message->FindString("url",&url);
 	
 }
@@ -48,7 +48,7 @@ status_t Category::Archive(BMessage* archive, bool deep)
 	BArchivable::Archive(archive, deep);
 	archive->AddString("name",name.String());
 	archive->AddInt32("update",(int32)updated);
-	archive->AddInt32("id", id);
+	archive->AddString("id", id.String());
 	archive->AddString("url",url.String());
 	return B_OK;
 }

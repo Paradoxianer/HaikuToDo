@@ -65,6 +65,8 @@ char* TaskGoogle::RequestAccessString(){
 	endpoint.Append("&scope=https://www.googleapis.com/auth/tasks");
 	std::cout << endpoint.String() << std::endl;
 	const char *args[] = { endpoint.String(), 0 };
+	//remove old request_token
+	RemoveToken();
 	be_roster->Launch("application/x-vnd.Be.URL.http",1,const_cast<char **>(args));
 	InputRequest* accesReturn=new InputRequest(	B_TRANSLATE("Google Code"),
 												B_TRANSLATE("Input Code"),
@@ -81,7 +83,8 @@ char* TaskGoogle::RequestAccessString(){
 
 status_t TaskGoogle::RequestToken(char *accesString)
 {
-	BHttpForm* form=new BHttpForm();
+	BHttpForm*	form=new BHttpForm();
+	BString		newRefreshToken;
 	//if there is no refreshToken do the "First Time Autentiation Procedure
 	if (refreshToken.Length()>0) {
 		form->AddString("refresh_token",refreshToken);
@@ -108,14 +111,16 @@ status_t TaskGoogle::RequestToken(char *accesString)
 	tokenJson.PrintToStream();
 	
 	//this should start the counter how long the token stays valid	
-	token=BString(tokenJson.GetString("access_token","NOT_FOUND"));
-	if (refreshToken.Length() == 0){
-		refreshToken.SetTo(tokenJson.GetString("refresh_token",""));
+	token			= BString(tokenJson.GetString("access_token",""));
+	std::cout << "Token access " << token.String() << std::endl;
+	
+	newRefreshToken = BString(tokenJson.GetString("refresh_token",""));
+	if (newRefreshToken.Length() != 0){
+		RemoveToken();
+		refreshToken.SetTo(newRefreshToken);
 		SaveToken();
 		std::cout << "Refresh Token" << refreshToken.String() << std::endl;
 	}
-	
-	std::cout << "Token access " << token.String() << std::endl;
 }
 
 
@@ -158,8 +163,7 @@ status_t TaskGoogle::LoadCategories(){
 		}
 		userList.PrintToStream();
 		BString*	title		= new BString();
-		BString*	idStr		= new BString();
-		int			newID		= 0;
+		BString*	newID		= new BString();
 		BString*	updateStr	= new BString();
 		time_t		updated		= 0;
 		BString*	selfLink	= new BString();
@@ -167,23 +171,22 @@ status_t TaskGoogle::LoadCategories(){
 		{
 			std::cerr << "ERROR: No 'title' found " << std::endl;
 		}
-		userList.FindString("id",idStr);
-		sscanf(idStr->String(),"%d",newID);
+		userList.FindString("id",newID);
 		userList.FindString("updated",updateStr);
 		updated=RFC3339ToTime(updateStr->String());
 		userList.FindString("selfLink",selfLink);
-		Category* cat=new Category(title->String(),newID,updated,selfLink->String());
+		Category* cat=new Category(title->String(),newID->String(),updated,selfLink->String());
 		categoryList->AddItem(cat);
-		this->LoadTasks(*cat);
+		this->LoadTasks(cat);
 	}
 }
 
-status_t TaskGoogle::LoadTasks(Category cat){
+status_t TaskGoogle::LoadTasks(Category* cat){
 	
 	//DO HTTP CONNECTION TO GOOGLE
 	BMessage	taskJson;
 	BList*		tks=new BList(20);
-	int32		catID=cat.ID();
+	const char*	catID = cat->ID();
 
 
 	
@@ -215,16 +218,16 @@ status_t TaskGoogle::LoadTasks(Category cat){
 		task.PrintToStream();
 		const char* title;
 		const char* taskId;
-		int32		newID;
+		const char*	newID;
 		const char* notes;
 		const char* status;
 		task.FindString("title",&title);
-		task.FindString("id",&taskId);
-		sscanf(taskId,"%d",newID);
+		task.FindString("id",&newID);
 
-		task.FindString("notes",&notes);
 		task.FindString("status",&status);
-		Task* tk=new Task(title,notes,newID,false);
+		Task* tk=new Task(title,cat,newID,false);
+		if (task.FindString("notes",&notes) == B_OK && notes!=NULL )
+			tk->SetNotes(notes);
 		tks->AddItem(tk);
 	}
 
@@ -243,6 +246,11 @@ status_t TaskGoogle::SaveToken(){
 	return B_ERROR;
 }
 
+
+status_t TaskGoogle::RemoveToken(void){
+		BKeyStore keyStore;
+		return keyStore.RemoveKeyring(tasksKeyring);
+}
 
 status_t TaskGoogle::UpdateTasks(BObjectList<Task>*){
 	//send and update to all changed Tasks	

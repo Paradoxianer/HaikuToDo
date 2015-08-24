@@ -16,12 +16,12 @@ Task::Task()
 }
 
 
-Task::Task(const char* title,const char* category,int32 newID,bool completed)
+Task::Task(const char* title,Category *cat,const char* newID,bool completed)
 	: BArchivable()
 {
 	Init();
 	SetTitle(title);
-	SetCategory(Category(category));
+	SetCategory(*cat);
 	SetID(newID);
 	Complete(completed);	
 }

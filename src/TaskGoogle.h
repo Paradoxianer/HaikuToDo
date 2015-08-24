@@ -53,10 +53,15 @@ class TaskGoogle : public TaskSync {
 		 */ 
 		status_t					SaveToken(void);
 		
+		/*
+		 * This will be called if we recognize the refresh_token dont work
+		 * or short bevore we request a new AccesString
+		 */
+		status_t					RemoveToken(void);
 		
 		status_t					Load(void);
 		status_t					LoadCategories(void);
-		status_t					LoadTasks(Category cat);
+		status_t					LoadTasks(Category *cat);
 		
 		BObjectList<Category>*		GetCategories(void){return categoryList;};
 		BObjectList<Task>*			GetTasks(void){return taskList;};
@@ -64,12 +69,15 @@ class TaskGoogle : public TaskSync {
 		status_t					UpdateTasks(BObjectList<Task>*);
 	
 		status_t					UpdateCategories(BObjectList<Category>*);
-		
+	
+
+
+private:
+	
 		time_t						RFC3339ToTime(const char* timeString);
 		
 		char*						TimeToRFC3339(time_t timeT);
-
-private:
+		Category*					CategoryBuyID(const char* forID);
 		
 		BString						token;
 		BString						refreshToken;

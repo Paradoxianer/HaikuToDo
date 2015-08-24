@@ -13,7 +13,7 @@
 class Task : public BArchivable{
 public:
 							Task();
-							Task(const char* title,const char* category,int32 newID,bool completed);
+							Task(const char* title,Category *cat,const char* newID,bool completed);
 							Task(BMessage *message);
 						
 			status_t		Archive(BMessage* archive, bool deep = true);
@@ -21,7 +21,7 @@ public:
 	
 
 	const	char*			Title(void) {return title.String();};
-			void			SetTitle(BString newTitle){title.SetTo(newTitle);};
+			void			SetTitle(const char* newTitle){title.SetTo(newTitle);};
 	
 			bool			IsCompleted(void) { return completed;};
 			void			Complete(bool newCompleted=true) { completed=newCompleted;};
@@ -42,8 +42,8 @@ public:
 			uint32			Priority(void){return priority;};
 			void			SetPriority(uint32 newPriority){priority=newPriority;};
 			
-			int32			ID(void){return id;};
-			void			SetID(int32 newID){id=newID;};
+	const	char*			ID(void){return id.String();};
+			void			SetID(const char* newID){id.SetTo(newID);};
 
 	const	char*			URL(void){return url.String();};
 			void			SetURL(BString newURL){url=newURL;};
@@ -73,7 +73,7 @@ private:
 			uint32			priority;
 			
 			// we should implement the id, etag, selfLink
-			int32			id;
+			BString			id;
 			BString			url;
 		
 };

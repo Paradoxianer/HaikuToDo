@@ -152,7 +152,7 @@ status_t TaskFS::TaskToFile(Task *theTask, bool overwrite)
 	bool	completed	= theTask->IsCompleted();
 	uint32	priority	= theTask->Priority();
 	time_t	due			= theTask->DueTime();
-	int32	id			= theTask->ID();
+
 	
 	//first check if the File already exists..
 	//if not and overwrite is on check the ids..
@@ -178,7 +178,7 @@ status_t TaskFS::TaskToFile(Task *theTask, bool overwrite)
 	taskFile.WriteAttrString("META:notes",new BString(theTask->Notes()));
 	taskFile.WriteAttr("META:priority", B_UINT32_TYPE, 0, &priority, sizeof(priority));
 	taskFile.WriteAttr("META:due", B_TIME_TYPE, 0, &due, sizeof(due));
-	taskFile.WriteAttr("META:task_id", B_INT32_TYPE, 0, &id, sizeof(id));
+	taskFile.WriteAttrString("META:task_id",  new BString(theTask->ID()));
 	taskFile.WriteAttrString("META:task_url",new BString(theTask->URL()));
 }
 
@@ -197,7 +197,7 @@ Task* TaskFS::FileToTask(entry_ref theEntryRef)
 	BString	notes;
 	uint32	priority;
 	time_t	due;
-	int32	id;
+	BString	id;
 	BString	url;	
 	
 	//maby do a check if everything went ok and only if so set the values
@@ -207,7 +207,7 @@ Task* TaskFS::FileToTask(entry_ref theEntryRef)
 	theFile.ReadAttrString("META:notes",&notes);
 	theFile.ReadAttr("META:priority", B_UINT32_TYPE, 0, &priority, sizeof(priority));
 	theFile.ReadAttr("META:due", B_TIME_TYPE, 0, &due, sizeof(due));
-	theFile.ReadAttr("META:task_id", B_INT32_TYPE, 0, &id, sizeof(id));
+	theFile.ReadAttrString("META:task_id", &id);
 	theFile.ReadAttrString("META:task_url",&url);
 	
 	newTask->Complete(completed);
@@ -224,14 +224,14 @@ Task* TaskFS::FileToTask(entry_ref theEntryRef)
 entry_ref* TaskFS::FileForId(Task *theTask)
 {
 	//scan through all files for the ID
-	int32		fileID;
+	BString		fileID;
 	entry_ref	*ref;
 	BNode		theNode;
 	
 	while (tasksDir.GetNextRef(ref) == B_OK){
 		theNode.SetTo(ref);
-		if (theNode.ReadAttr("META:task_id", B_INT32_TYPE, 0, &fileID, sizeof(fileID)) == B_OK)
-			if (fileID==theTask->ID() && fileID != 0)
+		if (theNode.ReadAttrString("META:task_id", &fileID) == B_OK)
+			if (fileID==theTask->ID() && fileID.Length() != 0)
 				return ref;
 	}
 	return NULL;

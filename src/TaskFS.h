@@ -29,7 +29,7 @@ const attrib sDefaultAttributes[] = {
 	{ "META:notes", B_STRING_TYPE, true, true, 50, B_TRANSLATE("Notes") },
 	{ "META:priority", B_UINT32_TYPE, true, true, 50, B_TRANSLATE("Priority") },
 	{ "META:due", B_TIME_TYPE, true, true, 50, B_TRANSLATE("Due Time") },
-	{ "META:task_id", B_INT32_TYPE, false, false, 50, "Task ID" },
+	{ "META:task_id", B_STRING_TYPE, false, false, 50, "Task ID" },
 	{ "META:task_url", B_STRING_TYPE, false, false, 50, "Task URL" },
 	{ NULL, 0,false,false,0, NULL }
 };
