@@ -10,6 +10,14 @@
 
 #include "Category.h"
 
+
+/** Maybe we should derive this and Category from one "Parent" 
+  *	wich just contains the 
+  * ID
+  * Titel / Name
+  * LastUpdated
+  * URL
+  */
 class Task : public BArchivable{
 public:
 							Task();
