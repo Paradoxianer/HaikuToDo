@@ -51,6 +51,7 @@ private:
 		sem_id				fNotify;
 		thread_id			fEventLoop;
 		bool				fQuiting;
+		
 };
 
 #endif

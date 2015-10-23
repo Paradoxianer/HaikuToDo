@@ -22,6 +22,9 @@ TaskApp::TaskApp()
 	fsSync->GetTasks();
 	gSync->Init();
 	gSync->GetTasks();
+	//iterate throught all gSync Tasks and Add them to the fsSync
+	//because fsSync is our basis
+	//installl a Eventloop to watch the tasks folder for changes
 }
 
 
