@@ -23,6 +23,7 @@ struct attrib {
 	const char*	name;
 };
 
+
 const attrib sDefaultAttributes[] = {
 	{ "META:completed", B_BOOL_TYPE, true, true, 40, B_TRANSLATE("Completed") },
 	{ "META:category",B_STRING_TYPE, true, true, 120, B_TRANSLATE("Category") },
@@ -40,12 +41,32 @@ public:
 									~TaskFS();
 	virtual	status_t				Init(void);
 	
-	virtual	BObjectList<Category>*	GetCategories(void){return categoryList;};
-	virtual	BObjectList<Task>*		GetTasks(void);
-	virtual	BObjectList<Task>*		GetTasks(Category forCategorie);
+	/* =========== Handel all Tasks related operations ========*/
 	
-	virtual status_t				UpdateTasks(BObjectList<Task>*);
-	virtual status_t				UpdateCategories(BObjectList<Category>*);
+	virtual	BObjectList<Task>*		GetTasks(void);
+	virtual	Task*					GetTask(BString forID);
+	virtual	BObjectList<Task>*		GetTasks(Category ctgr);
+	
+	virtual status_t				AddTask(Task *tsk);
+	
+	virtual	status_t				UpdateTask(BString id, Task *tsk);
+	
+	virtual status_t				RemoveTask(BString id);
+	
+	
+	/* ========= Handel all Category related operations ======*/
+
+	virtual	BObjectList<Category>*	GetCategories(void){return categoryList;};
+	virtual	Category*				GetCategorie(BString id);
+
+	virtual status_t				AddCategorie(Category *ctgr);
+	
+	virtual status_t				UpdateCategorie(BString id,Category *ctgr);
+
+	//promt and ask if all Taks should be deleted or if the category just be blank
+	virtual status_t				RemoveCategorie(BString id);
+	
+
 	
 private:
 			status_t				PrepareFirstStart(void);

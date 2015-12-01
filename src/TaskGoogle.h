@@ -63,26 +63,44 @@ class TaskGoogle : public TaskSync {
 		status_t					LoadCategories(void);
 		status_t					LoadTasks(Category *cat);
 		
-		BObjectList<Category>*		GetCategories(void){return categoryList;};
-		BObjectList<Task>*			GetTasks(void){return taskList;};
-		
-		status_t					UpdateTasks(BObjectList<Task>*);
-	
-		status_t					UpdateCategories(BObjectList<Category>*);
-	
 
+		/* =========== Handel all Tasks related operations ========*/
+		virtual	BObjectList<Task>*		GetTasks(){return taskList;}
+		virtual	BObjectList<Task>*		GetTasks(Category ctgr);
+	
+		virtual	Task*					GetTask(BString id);
+	
+		virtual status_t				AddTask(Task *tsk);
+	
+		virtual status_t				UpdateTask(BString id,Task *tsk);
+	
+		virtual status_t				RemoveTask(BString id);
+
+
+		/* ========= Handel all Category related operations ======*/
+
+		virtual	BObjectList<Category>*	GetCategories(void){return categoryList;};
+		virtual	Category*				GetCategorie(BString id);
+
+		virtual status_t				AddCategorie(Category *ctgr);
+	
+		virtual status_t				UpdateCategorie(BString id,Category *ctgr);
+
+		//what does google do if you call a delete on a Categorie?
+		virtual status_t				RemoveCategorie(BString id);	
+	
 
 private:
 	
-		time_t						RFC3339ToTime(const char* timeString);
+		time_t							RFC3339ToTime(const char* timeString);
 		
-		char*						TimeToRFC3339(time_t timeT);
-		Category*					CategoryBuyID(const char* forID);
+		char*							TimeToRFC3339(time_t timeT);
+		Category*						CategoryBuyID(const char* forID);
 		
-		BString						token;
-		BString						refreshToken;
-		BObjectList<Task>*			taskList;
-		BObjectList<Category>*		categoryList;
+		BString							token;
+		BString							refreshToken;
+		BObjectList<Task>*				taskList;
+		BObjectList<Category>*			categoryList;
 		
 };
 

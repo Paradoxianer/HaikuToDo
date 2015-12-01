@@ -15,14 +15,16 @@
 
 TaskFS::TaskFS()
 {
+	taskList		= NULL;
+	categoryList	= NULL;
 }
 
 
 TaskFS::~TaskFS()
 {
-	
+	delete categoryList;
+	delete taskList;
 }
-
 
 status_t TaskFS::Init(void)
 {
@@ -41,12 +43,32 @@ BObjectList<Task>* TaskFS::GetTasks(void)
 	return taskList;
 }
 
+Task* TaskFS::GetTask(BString forID)
+{
+	Task	*tmpTask	= NULL;
+	int32	i			= 0;
+	bool	found		= false;
+	//grab a up to date List of Items
+	GetTasks();
+	while (i<taskList->CountItems() && found!=true)
+	{
+		tmpTask=taskList->ItemAt(i);
+		found = tmpTask->ID() == forID;
+		i++;
+	}
+	
+	if (found == true)
+		return tmpTask;
+	else
+		return NULL;
+}
+
 BObjectList<Task>* TaskFS::GetTasks(Category forCategorie)
 {
 	Task				*tmpTask		= NULL;
 	BObjectList<Task>	*taskCategory	= new BObjectList<Task>();
-
 	int32	i;
+	//grab a up to date List of Items
 	GetTasks();
 	for (i = 0; i<taskList->CountItems();i++) {
 		tmpTask=taskList->ItemAt(i);
@@ -56,17 +78,50 @@ BObjectList<Task>* TaskFS::GetTasks(Category forCategorie)
 	return taskCategory;
 }
 
-	
-status_t TaskFS::UpdateTasks(BObjectList<Task>*)
+status_t TaskFS::AddTask(Task *tsk)
 {
-	
+	return TaskToFile(tsk, true);
+}
+
+status_t TaskFS::UpdateTask(BString id, Task *tsk)
+{
+	//it should only write a file if there is 
+	return TaskToFile(tsk, false);
 }
 
 
-status_t TaskFS::UpdateCategories(BObjectList<Category>*)
+status_t TaskFS::RemoveTask(BString id)
 {
-	//check if they are already tehre
+	entry_ref *ref = FileForId(GetTask(id));
+	BEntry deleter(ref);
+	deleter.Remove();
 }
+
+
+Category* TaskFS::GetCategorie(BString id)
+{
+	//.. try to find the right ... id
+}
+
+
+status_t TaskFS::AddCategorie(Category *ctgr)
+{
+	//**do nothing as we dont store categorys only
+	return B_OK;
+}
+	
+status_t  TaskFS::UpdateCategorie(BString id,Category *ctgr)
+{
+	//find the name for the given id  then replace all File Attribs with the 
+	//new Category Name
+}
+
+
+status_t TaskFS::RemoveCategorie(BString id)
+{
+	//find all entrys with categories... and delete it....
+}
+
 
 status_t TaskFS::PrepareFirstStart()
 {
@@ -180,6 +235,7 @@ status_t TaskFS::TaskToFile(Task *theTask, bool overwrite)
 	taskFile.WriteAttr("META:due", B_TIME_TYPE, 0, &due, sizeof(due));
 	taskFile.WriteAttrString("META:task_id",  new BString(theTask->ID()));
 	taskFile.WriteAttrString("META:task_url",new BString(theTask->URL()));
+	return err; 
 }
 
 
@@ -223,7 +279,7 @@ Task* TaskFS::FileToTask(entry_ref theEntryRef)
 
 entry_ref* TaskFS::FileForId(Task *theTask)
 {
-	//scan through all files for the ID
+	//**scan through all files for the ID or shell we do a querry??
 	BString		fileID;
 	entry_ref	*ref;
 	BNode		theNode;

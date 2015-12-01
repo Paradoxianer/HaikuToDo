@@ -262,18 +262,23 @@ status_t TaskGoogle::UpdateCategories(BObjectList<Category>*){
 	
 
 time_t TaskGoogle::RFC3339ToTime(const char *timeString){
-	struct tm * timeinfo;
-	int year, month, day, hour, minute, second = 0;
+	struct	tm timeinfo;
+	int		year	= 0;
+	int		month	= 0;
+	int		day		= 0;
+	int		hour	= 0;
+	int		minute	= 0;
+	int		second	= 0;
 	//needs error check
-	scanf ("%d-%d-%dT%d:%d:%d", &year, &month, &day,
+	sscanf (timeString,"%d-%d-%dT%d:%d:%d", &year, &month, &day,
            &hour, &minute, &second);
-	timeinfo->tm_year = year - 1900;
-	timeinfo->tm_mon = month - 1;
-	timeinfo->tm_mday = day;
-	timeinfo->tm_hour = hour;
-	timeinfo->tm_min = minute;
-	timeinfo->tm_sec = second;
-	return mktime(timeinfo);
+	timeinfo.tm_year = year - 1900;
+	timeinfo.tm_mon = month - 1;
+	timeinfo.tm_mday = day;
+	timeinfo.tm_hour = hour;
+	timeinfo.tm_min = minute;
+	timeinfo.tm_sec = second;
+	return mktime(&timeinfo);
 }
 
 char* TaskGoogle::TimeToRFC3339(time_t timeT){
