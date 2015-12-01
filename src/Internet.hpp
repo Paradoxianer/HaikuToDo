@@ -24,7 +24,7 @@ class HaikuHTTP {
 	public:
 		static BString GET(BString urlString,BHttpForm* form = NULL)
 		{
-			BUrl url(urlString);
+		  	BUrl url(urlString);
 			SynchronousListener listener;
 			BHttpRequest req(url,true,"HTTP",&listener);
 			if(form != NULL)
