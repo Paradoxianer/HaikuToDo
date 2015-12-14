@@ -31,15 +31,17 @@ TaskGoogle::~TaskGoogle()
 
 status_t TaskGoogle::Init(void)
 {
-	//first try to load token
-	
+	//first try to load token	
+	status_t err = B_OK;
 	if (LoadToken()!=B_OK){
 		char *accesString = RequestAccessString();
-		RequestToken(accesString);
+		err = RequestToken(accesString);
 	}
 	else
-		RequestToken(NULL);
-	Load();
+		err = RequestToken(NULL);
+	if (err == B_OK)
+		err = Load();
+	return err;
 }
 
 status_t TaskGoogle::LoadToken(){
@@ -51,7 +53,6 @@ status_t TaskGoogle::LoadToken(){
 		return B_OK;
 	}
 	return B_ERROR;	
-	
 }
 
 
@@ -85,6 +86,7 @@ status_t TaskGoogle::RequestToken(char *accesString)
 {
 	BHttpForm*	form=new BHttpForm();
 	BString		newRefreshToken;
+	status_t	err = B_OK;
 	//if there is no refreshToken do the "First Time Autentiation Procedure
 	if (refreshToken.Length()>0) {
 		form->AddString("refresh_token",refreshToken);
@@ -103,6 +105,7 @@ status_t TaskGoogle::RequestToken(char *accesString)
 		form->AddString("redirect_uri",REDIRECT_URI);
 	}
 	form->SetFormType(B_HTTP_FORM_URL_ENCODED);
+	//**Need to check for internetconnection and return an error if there i none
 	BString oauth2("https://www.googleapis.com/oauth2/v3/token");
 	BString tokenResponse(HaikuHTTP::GET(oauth2,form));
 	
@@ -120,7 +123,10 @@ status_t TaskGoogle::RequestToken(char *accesString)
 		refreshToken.SetTo(newRefreshToken);
 		SaveToken();
 		std::cout << "Refresh Token" << refreshToken.String() << std::endl;
+		return B_OK;
 	}
+	else
+		return B_OK;
 }
 
 
@@ -138,7 +144,6 @@ status_t TaskGoogle::LoadCategories(){
 	BString listsResponse(HaikuHTTP::GET(listUrlString));
 	
 	BMessage listsJson;
-	std::cout << listsResponse << std::endl;
 	BPrivate::BJson::Parse(listsJson,listsResponse);
 	listsJson.PrintToStream();
 	
@@ -147,10 +152,7 @@ status_t TaskGoogle::LoadCategories(){
 	{
 		std::cerr << "ERROR: 'items' not found" << std::endl;
 	}
-
-	
 	int32 lists=userLists.CountNames(B_ANY_TYPE);
-	std::cout << "Lists found: " << lists << std::endl;
 	
 	for(int32 currentList=0;currentList<lists;currentList++)
 	{
@@ -252,12 +254,40 @@ status_t TaskGoogle::RemoveToken(void){
 		return keyStore.RemoveKeyring(tasksKeyring);
 }
 
-status_t TaskGoogle::UpdateTasks(BObjectList<Task>*){
-	//send and update to all changed Tasks	
+BObjectList<Task>* TaskGoogle::GetTasks(Category ctgr){
 }
 	
-status_t TaskGoogle::UpdateCategories(BObjectList<Category>*){
-	//send a update to all changed Categories
+Task* TaskGoogle::GetTask(BString id){
+}
+
+
+status_t  TaskGoogle::AddTask(Task *tsk){
+}
+
+status_t TaskGoogle::UpdateTask(BString id,Task *tsk){
+	//send and update to all changed Tasks	
+}
+
+
+status_t TaskGoogle::RemoveTask(BString id){
+	//send delete Request to google
+}
+	
+/* ======== Category related===*/
+Category* TaskGoogle::GetCategorie(BString id) {
+	return NULL;
+}
+
+status_t TaskGoogle::AddCategorie(Category *ctgr){
+	//**implement
+	return B_ERROR;
+}
+	
+status_t TaskGoogle::UpdateCategorie(BString id,Category *ctgr){
+}
+
+		//what does google do if you call a delete on a Categorie?
+status_t TaskGoogle::RemoveCategorie(BString id){
 }
 	
 

@@ -77,7 +77,7 @@ class TaskGoogle : public TaskSync {
 		virtual status_t				RemoveTask(BString id);
 
 
-		/* ========= Handel all Category related operations ======*/
+		/* ========= Handle all Category related operations ======*/
 
 		virtual	BObjectList<Category>*	GetCategories(void){return categoryList;};
 		virtual	Category*				GetCategorie(BString id);
