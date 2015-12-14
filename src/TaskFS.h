@@ -17,6 +17,7 @@
 struct attrib {
 	const char*	attribute;
 	type_code	type;
+	const char*	displayAs;
 	bool		isPublic;
 	bool		editable;
 	int32		width;
@@ -25,14 +26,14 @@ struct attrib {
 
 
 const attrib sDefaultAttributes[] = {
-	{ "META:completed", B_BOOL_TYPE, true, true, 40, B_TRANSLATE("Completed") },
-	{ "META:category",B_STRING_TYPE, true, true, 120, B_TRANSLATE("Category") },
-	{ "META:notes", B_STRING_TYPE, true, true, 50, B_TRANSLATE("Notes") },
-	{ "META:priority", B_UINT32_TYPE, true, true, 50, B_TRANSLATE("Priority") },
-	{ "META:due", B_TIME_TYPE, true, true, 50, B_TRANSLATE("Due Time") },
-	{ "META:task_id", B_STRING_TYPE, false, false, 50, "Task ID" },
-	{ "META:task_url", B_STRING_TYPE, false, false, 50, "Task URL" },
-	{ NULL, 0,false,false,0, NULL }
+	{ "META:completed", B_BOOL_TYPE, "checkbox",true, true, 40, B_TRANSLATE("Completed") },
+	{ "META:category",B_STRING_TYPE, NULL,true, true, 120, B_TRANSLATE("Category") },
+	{ "META:notes", B_STRING_TYPE, NULL,true, true, 50, B_TRANSLATE("Notes") },
+	{ "META:priority", B_UINT32_TYPE,NULL, true, true, 50, B_TRANSLATE("Priority") },
+	{ "META:due", B_TIME_TYPE, NULL,true, true, 50, B_TRANSLATE("Due Time") },
+	{ "META:task_id", B_STRING_TYPE,NULL, false, false, 50, "Task ID" },
+	{ "META:task_url", B_STRING_TYPE, NULL,false, false, 50, "Task URL" },
+	{ NULL, 0,NULL,false,false,0, NULL }
 };
 
 class TaskFS : public TaskSync {

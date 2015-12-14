@@ -162,9 +162,9 @@ status_t TaskFS::PrepareFirstStart()
 		BResources* res = BApplication::AppResources();
 		if (res != NULL){
 			size_t size;
-			const void* data = res->LoadResource(B_VECTOR_ICON_TYPE, 2, &size);
+			const void* data = res->LoadResource(B_VECTOR_ICON_TYPE, "TASK_ICON", &size);
 			if (data!=NULL)
-				mime.SetIcon((const uint8 *)data, sizeof(data));
+				mime.SetIcon(reinterpret_cast<const uint8*>(data), size);
 		}
 		mime.SetPreferredApp(APP_SIG);
 
@@ -174,6 +174,7 @@ status_t TaskFS::PrepareFirstStart()
 			fields.AddString("attr:public_name", sDefaultAttributes[i].name);
 			fields.AddString("attr:name", sDefaultAttributes[i].attribute);
 			fields.AddInt32("attr:type", sDefaultAttributes[i].type);
+			fields.AddString("attr:display_as", sDefaultAttributes[i].displayAs);
 			fields.AddBool("attr:viewable", sDefaultAttributes[i].isPublic);
 			fields.AddBool("attr:editable", sDefaultAttributes[i].editable);
 			fields.AddInt32("attr:width", sDefaultAttributes[i].width);
