@@ -6,7 +6,7 @@
 #include <Handler.h>
 
 #include "Task.h"
-#include "Category.h"
+#include "TaskList.h"
 
 
 class TaskSync : public BHandler {
@@ -26,7 +26,7 @@ class TaskSync : public BHandler {
 	 * returns a List of Task Objects 
 	 */
 	virtual	BObjectList<Task>*		GetTasks() 					= 0;
-	virtual	BObjectList<Task>*		GetTasks(Category ctgr)		= 0;
+	virtual	BObjectList<Task>*		GetTasks(TaskList ctgr)		= 0;
 	
 	virtual	Task*					GetTask(BString id) 		= 0;
 	
@@ -39,18 +39,18 @@ class TaskSync : public BHandler {
 	
 	
 	/**
-	 * returns a List of BString of all Categories
+	 * returns a List of BString of all TaskLists
 	 */
-	virtual	BObjectList<Category>*	GetCategories()					= 0;
+	virtual	BObjectList<TaskList>*	GetTaskLists()					= 0;
 
-	virtual	Category*				GetCategorie(BString id)		= 0;
+	virtual	TaskList*				GetTaskList(BString id)		= 0;
 
-	virtual status_t				AddCategorie(Category *ctgr)	= 0;	
+	virtual status_t				AddTaskList(TaskList *ctgr)	= 0;	
 	
-	virtual status_t				UpdateCategorie(BString id,Category *ctgr)	= 0;
+	virtual status_t				UpdateTaskList(BString id,TaskList *ctgr)	= 0;
 
 	//what should we do? should we delete all task wich belong to this cateorie?
-	virtual status_t				RemoveCategorie(BString id)		= 0;
+	virtual status_t				RemoveTaskList(BString id)		= 0;
 	
 };
 

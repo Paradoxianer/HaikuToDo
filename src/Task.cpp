@@ -16,12 +16,12 @@ Task::Task()
 }
 
 
-Task::Task(const char* title,Category *cat,const char* newID,bool completed)
+Task::Task(const char* title,TaskList *tList,const char* newID,bool completed)
 	: BArchivable()
 {
 	Init();
 	SetTitle(title);
-	SetCategory(*cat);
+	SetTaskList(tList);
 	SetID(newID);
 	Complete(completed);	
 }
@@ -35,12 +35,14 @@ Task::Task(BMessage *message)
 	//read all Attributes from BMessage
 	BString dueString;
 	BString statusString;
-	BString categoryString;
+	BString listID;
 	
 	message->FindString("title",&title);
 	
-	if (message->FindString("category",&categoryString) == B_OK){
-		category=Category(categoryString.String());
+	if (message->FindString("taskList",&listID) == B_OK){
+		//**find ID
+		belongTo=new TaskList("");
+		belongTo->SetID(listID);
 	}
 	
 	message->FindInt32("update", (int32 *)&updated);
@@ -59,7 +61,7 @@ void Task::Init(void)
 {
 	title		= "";
 	completed	= false;
-	category	= "";
+	belongTo	= NULL;
 	updated		= real_time_clock();
 	notes		= "";
 	due			= 0;
@@ -72,7 +74,7 @@ status_t Task::Archive(BMessage* archive, bool deep)
 {
 	BArchivable::Archive(archive, deep);
 	archive->AddString("title",title.String());
-	archive->AddString("category",category.Name());
+	archive->AddString("taskList",belongTo->ID());
 	archive->AddInt32("update",(int32)updated);
 	if (notes.CountChars()>0)
 		archive->AddString("notes",notes.String());
@@ -99,7 +101,7 @@ bool Task::operator==(const Task& other) const
 {
 	return     title == other.title 
 			&& completed == other.completed
-			&& category == other.category 
+			&& *belongTo == *(other.belongTo)
 			&& updated == other.updated
 			&& notes == other.notes 
 			&& due == other.due;

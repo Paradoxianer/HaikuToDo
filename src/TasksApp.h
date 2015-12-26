@@ -13,6 +13,7 @@
 #define B_TRANSLATION_CONTEXT "TaskApp"
 
 #define	APP_SIG	"application/x-vnd.Tasks"
+
 #define TASK_DIRECTORY "tasks"
 
 #define TASK_MIMETYPE "application/x-tasks"

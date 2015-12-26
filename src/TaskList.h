@@ -1,18 +1,18 @@
-#ifndef CATEGORY_H
-#define CATEGORY_H
+#ifndef TASK_LIST_H
+#define TASK_LIST_H
 
 
 #include <Archivable.h>
 #include <String.h>
+class Task;
 
-
-class Category : public BArchivable {
+class TaskList : public BArchivable {
 public:
-							Category();
-							Category(const char* newName);
-							Category(const char* newName, const char* newID, time_t lastUpdate, const char* newURL);
-							Category(BMessage *archive);
-							~Category() {};
+							TaskList();
+							TaskList(const char* newName);
+							TaskList(const char* newName, const char* newID, time_t lastUpdate, const char* newURL);
+							TaskList(BMessage *archive);
+							~TaskList() {};
 							
 							
 			status_t		Archive(BMessage* archive, bool deep = true);
@@ -31,7 +31,7 @@ public:
 			void			SetURL(BString newURL){url=newURL;};
 
 			
-			bool			operator==(const Category& task) const;
+			bool			operator==(const TaskList& task) const;
 
 protected:
 			void			Init(void);
@@ -39,11 +39,12 @@ protected:
 		
 private:
 			BString			name;
-			time_t			updated; //this should be hidden at least in the tracker
+			time_t			updated;
 			
-			// we should implement the id, etag, selfLink
+			// we should implement  etag
 			BString			id;
 			BString			url;
+			
 };
 
 #endif

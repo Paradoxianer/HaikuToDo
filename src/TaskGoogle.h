@@ -3,6 +3,7 @@
 
 #include "TaskSync.h"
 #include "Task.h"
+#include "TaskList.h"
 
 
 #define CLIENT_ID "318709342848-0h9712v3kbpcv1r7oc8krdrfu22ohlld.apps.googleusercontent.com"
@@ -44,7 +45,7 @@ class TaskGoogle : public TaskSync {
 		status_t					RequestToken(char* accesString);
 		
 		/*
-		 * Login and donwload all Categories and Tasks
+		 * Login and donwload all TaskLists and Tasks
 		 */
 		status_t					Login(BString token);
 		
@@ -60,13 +61,13 @@ class TaskGoogle : public TaskSync {
 		status_t					RemoveToken(void);
 		
 		status_t					Load(void);
-		status_t					LoadCategories(void);
-		status_t					LoadTasks(Category *cat);
+		status_t					LoadTaskLists(void);
+		status_t					LoadTasks(TaskList *cat);
 		
 
 		/* =========== Handel all Tasks related operations ========*/
 		virtual	BObjectList<Task>*		GetTasks(){return taskList;}
-		virtual	BObjectList<Task>*		GetTasks(Category ctgr);
+		virtual	BObjectList<Task>*		GetTasks(TaskList ctgr);
 	
 		virtual	Task*					GetTask(BString id);
 	
@@ -77,17 +78,17 @@ class TaskGoogle : public TaskSync {
 		virtual status_t				RemoveTask(BString id);
 
 
-		/* ========= Handle all Category related operations ======*/
+		/* ========= Handle all TaskList related operations ======*/
 
-		virtual	BObjectList<Category>*	GetCategories(void){return categoryList;};
-		virtual	Category*				GetCategorie(BString id);
+		virtual	BObjectList<TaskList>*	GetTaskLists(void){return tLists;};
+		virtual	TaskList*				GetTaskList(BString id);
 
-		virtual status_t				AddCategorie(Category *ctgr);
+		virtual status_t				AddTaskList(TaskList *ctgr);
 	
-		virtual status_t				UpdateCategorie(BString id,Category *ctgr);
+		virtual status_t				UpdateTaskList(BString id,TaskList *ctgr);
 
-		//what does google do if you call a delete on a Categorie?
-		virtual status_t				RemoveCategorie(BString id);	
+		//what does google do if you call a delete on a TaskList?
+		virtual status_t				RemoveTaskList(BString id);	
 	
 
 private:
@@ -95,12 +96,12 @@ private:
 		time_t							RFC3339ToTime(const char* timeString);
 		
 		char*							TimeToRFC3339(time_t timeT);
-		Category*						CategoryBuyID(const char* forID);
+		TaskList*						TaskListBuyID(const char* forID);
 		
 		BString							token;
 		BString							refreshToken;
 		BObjectList<Task>*				taskList;
-		BObjectList<Category>*			categoryList;
+		BObjectList<TaskList>*			tLists;
 		
 };
 

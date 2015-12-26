@@ -8,10 +8,10 @@
 
 #include <time.h>
 
-#include "Category.h"
+#include "TaskList.h"
 
 
-/** Maybe we should derive this and Category from one "Parent" 
+/** Maybe we should derive this and TaskList from one "Parent" 
   *	wich just contains the 
   * ID
   * Titel / Name
@@ -21,7 +21,7 @@
 class Task : public BArchivable{
 public:
 							Task();
-							Task(const char* title,Category *cat,const char* newID,bool completed);
+							Task(const char* title,TaskList *newList,const char* newID,bool completed);
 							Task(BMessage *message);
 						
 			status_t		Archive(BMessage* archive, bool deep = true);
@@ -34,8 +34,8 @@ public:
 			bool			IsCompleted(void) { return completed;};
 			void			Complete(bool newCompleted=true) { completed=newCompleted;};
 	
-			Category		GetCategory(void) { return category;};
-			void			SetCategory(Category newCategory) {category=newCategory;}
+			TaskList*		GetTaskList(void) { return belongTo;};
+			void			SetTaskList(TaskList *newTaskList) {belongTo=newTaskList;}
 			
 			time_t			LastUpdate(void){return updated;};
 			void			SetLastUpdate(bigtime_t newTime){ updated=newTime; };
@@ -67,7 +67,7 @@ protected:
 private:
 			BString			title;
 			bool			completed;
-			Category		category;
+			TaskList*		belongTo;
 			time_t			updated; //this should be hidden at least in the tracker
 			
 			//this are optional

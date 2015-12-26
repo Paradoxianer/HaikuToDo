@@ -8,7 +8,7 @@
 
 #include "TaskColumns.h"
 #include "TaskSync.h"
-#include "Category.h"
+#include "TaskList.h"
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "TaskApp"
@@ -27,7 +27,7 @@ struct attrib {
 
 const attrib sDefaultAttributes[] = {
 	{ "META:completed", B_BOOL_TYPE, "checkbox",true, true, 40, B_TRANSLATE("Completed") },
-	{ "META:category",B_STRING_TYPE, NULL,true, true, 120, B_TRANSLATE("Category") },
+	{ "META:taskList",B_STRING_TYPE, NULL,false, false, 120, B_TRANSLATE("List") },
 	{ "META:notes", B_STRING_TYPE, NULL,true, true, 50, B_TRANSLATE("Notes") },
 	{ "META:priority", B_UINT32_TYPE,NULL, true, true, 50, B_TRANSLATE("Priority") },
 	{ "META:due", B_TIME_TYPE, NULL,true, true, 50, B_TRANSLATE("Due Time") },
@@ -46,7 +46,7 @@ public:
 	
 	virtual	BObjectList<Task>*		GetTasks(void);
 	virtual	Task*					GetTask(BString forID);
-	virtual	BObjectList<Task>*		GetTasks(Category ctgr);
+	virtual	BObjectList<Task>*		GetTasks(TaskList list);
 	
 	virtual status_t				AddTask(Task *tsk);
 	
@@ -55,17 +55,17 @@ public:
 	virtual status_t				RemoveTask(BString id);
 	
 	
-	/* ========= Handel all Category related operations ======*/
+	/* ========= Handel all List related operations ======*/
 
-	virtual	BObjectList<Category>*	GetCategories(void){return categoryList;};
-	virtual	Category*				GetCategorie(BString id);
+	virtual	BObjectList<TaskList>*	GetTaskLists(void){return taskListList;};
+	virtual	TaskList*				GetTaskList(BString id);
 
-	virtual status_t				AddCategorie(Category *ctgr);
+	virtual status_t				AddTaskList(TaskList *ctgr);
 	
-	virtual status_t				UpdateCategorie(BString id,Category *ctgr);
+	virtual status_t				UpdateTaskList(BString id,TaskList *uList);
 
-	//promt and ask if all Taks should be deleted or if the category just be blank
-	virtual status_t				RemoveCategorie(BString id);
+	//promt and ask if all Taks should be deleted or if the TaskList just be blank
+	virtual status_t				RemoveTaskList(BString id);
 	
 
 	
@@ -79,7 +79,7 @@ private:
 			BDirectory				tasksDir;
 			
 			BObjectList<Task>*		taskList;
-			BObjectList<Category>*	categoryList;
+			BObjectList<TaskList>*	taskListList;
 		
 };
 

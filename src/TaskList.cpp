@@ -1,18 +1,19 @@
-#include "Category.h"
+#include "TaskList.h"
+#include "Task.h"
 
-Category::Category(): BArchivable()
+TaskList::TaskList(): BArchivable()
 {
 	Init();
 }
 
-Category::Category(const char* newName)
+TaskList::TaskList(const char* newName)
 	: BArchivable()
 {
 	Init();
 	name=newName;
 }
 
-Category::Category(const char* newName, const char* newID, time_t lastUpdate, const char* newURL)
+TaskList::TaskList(const char* newName, const char* newID, time_t lastUpdate, const char* newURL)
 	: BArchivable()
 {
 	Init();
@@ -23,7 +24,7 @@ Category::Category(const char* newName, const char* newID, time_t lastUpdate, co
 }
 
 
-Category::Category(BMessage *message)
+TaskList::TaskList(BMessage *message)
 	:BArchivable(message)
 {
 	Init();
@@ -34,7 +35,7 @@ Category::Category(BMessage *message)
 	
 }
 
-void Category::Init(void)
+void TaskList::Init(void)
 {
 	name		= "";
 	updated		= real_time_clock();
@@ -43,7 +44,7 @@ void Category::Init(void)
 }
 
 
-status_t Category::Archive(BMessage* archive, bool deep)
+status_t TaskList::Archive(BMessage* archive, bool deep)
 {
 	BArchivable::Archive(archive, deep);
 	archive->AddString("name",name.String());
@@ -54,14 +55,14 @@ status_t Category::Archive(BMessage* archive, bool deep)
 }
 
 
-BArchivable* Category::Instantiate(BMessage* archive)
+BArchivable* TaskList::Instantiate(BMessage* archive)
 {
-   if ( !validate_instantiation(archive, "Category") )
+   if ( !validate_instantiation(archive, "TaskList") )
       return NULL;
-   return new Category(archive);
+   return new TaskList(archive);
 }
 
-bool Category::operator==(const Category& other) const
+bool TaskList::operator==(const TaskList& other) const
 {
 	return     name == other.name 
 			&& id == other.id

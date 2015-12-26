@@ -16,20 +16,20 @@
 TaskFS::TaskFS()
 {
 	taskList		= NULL;
-	categoryList	= NULL;
+	taskListList	= NULL;
 }
 
 
 TaskFS::~TaskFS()
 {
-	delete categoryList;
+	delete taskListList;
 	delete taskList;
 }
 
 status_t TaskFS::Init(void)
 {
 	taskList		= new BObjectList<Task>();
-	categoryList	= new BObjectList<Category>();
+	taskListList	= new BObjectList<TaskList>();
 	return PrepareFirstStart();
 }
 
@@ -63,19 +63,19 @@ Task* TaskFS::GetTask(BString forID)
 		return NULL;
 }
 
-BObjectList<Task>* TaskFS::GetTasks(Category forCategorie)
+BObjectList<Task>* TaskFS::GetTasks(TaskList forCategorie)
 {
 	Task				*tmpTask		= NULL;
-	BObjectList<Task>	*taskCategory	= new BObjectList<Task>();
+	BObjectList<Task>	*taskTaskList	= new BObjectList<Task>();
 	int32	i;
 	//grab a up to date List of Items
 	GetTasks();
 	for (i = 0; i<taskList->CountItems();i++) {
 		tmpTask=taskList->ItemAt(i);
-		if (tmpTask->GetCategory() == forCategorie)
-			taskCategory->AddItem(tmpTask);
+		if (*(tmpTask->GetTaskList()) == forCategorie)
+			taskTaskList->AddItem(tmpTask);
 	}
-	return taskCategory;
+	return taskTaskList;
 }
 
 status_t TaskFS::AddTask(Task *tsk)
@@ -98,26 +98,26 @@ status_t TaskFS::RemoveTask(BString id)
 }
 
 
-Category* TaskFS::GetCategorie(BString id)
+TaskList* TaskFS::GetTaskList(BString id)
 {
 	//.. try to find the right ... id
 }
 
 
-status_t TaskFS::AddCategorie(Category *ctgr)
+status_t TaskFS::AddTaskList(TaskList *ctgr)
 {
-	//**do nothing as we dont store categorys only
+	//**do nothing as we dont store TaskLists only
 	return B_OK;
 }
 	
-status_t  TaskFS::UpdateCategorie(BString id,Category *ctgr)
+status_t  TaskFS::UpdateTaskList(BString id,TaskList *ctgr)
 {
 	//find the name for the given id  then replace all File Attribs with the 
-	//new Category Name
+	//new TaskList Name
 }
 
 
-status_t TaskFS::RemoveCategorie(BString id)
+status_t TaskFS::RemoveTaskList(BString id)
 {
 	//find all entrys with categories... and delete it....
 }
@@ -230,7 +230,7 @@ status_t TaskFS::TaskToFile(Task *theTask, bool overwrite)
 	}
 	taskFile.WriteAttr("META:completed",B_BOOL_TYPE, 0, &completed, sizeof(completed));
 	entry.Rename(theTask->Title());
-	taskFile.WriteAttrString("META:category",new BString(theTask->GetCategory().Name()));
+	taskFile.WriteAttrString("META:taskList",new BString(theTask->GetTaskList()->ID()));
 	taskFile.WriteAttrString("META:notes",new BString(theTask->Notes()));
 	taskFile.WriteAttr("META:priority", B_UINT32_TYPE, 0, &priority, sizeof(priority));
 	taskFile.WriteAttr("META:due", B_TIME_TYPE, 0, &due, sizeof(due));
@@ -250,7 +250,7 @@ Task* TaskFS::FileToTask(entry_ref theEntryRef)
 	
 	bool	completed;
 	char	name[B_FILE_NAME_LENGTH];
-	BString	category;
+	BString	taskListID;
 	BString	notes;
 	uint32	priority;
 	time_t	due;
@@ -260,16 +260,20 @@ Task* TaskFS::FileToTask(entry_ref theEntryRef)
 	//maby do a check if everything went ok and only if so set the values
 	theFile.ReadAttr("META:completed",B_BOOL_TYPE, 0, &completed, sizeof(completed));
 	theEntry.GetName(name);
-	theFile.ReadAttrString("META:category",&category);
+	theFile.ReadAttrString("META:taskList",&taskListID);
 	theFile.ReadAttrString("META:notes",&notes);
 	theFile.ReadAttr("META:priority", B_UINT32_TYPE, 0, &priority, sizeof(priority));
 	theFile.ReadAttr("META:due", B_TIME_TYPE, 0, &due, sizeof(due));
 	theFile.ReadAttrString("META:task_id", &id);
 	theFile.ReadAttrString("META:task_url",&url);
 	
+	//** find TaskList from ID//
+	
+	TaskList *newTaskList = new TaskList("");
+	newTaskList->SetID(taskListID);
 	newTask->Complete(completed);
 	newTask->SetTitle(BString(name));
-	newTask->SetCategory(Category(category));
+	newTask->SetTaskList(newTaskList);
 	newTask->SetNotes(notes);
 	newTask->SetPriority(priority);
 	newTask->SetDueTime(due);

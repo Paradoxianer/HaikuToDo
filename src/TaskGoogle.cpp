@@ -20,7 +20,7 @@
 
 TaskGoogle::TaskGoogle()
 {
-	categoryList=new BObjectList<Category>(20);
+	tLists=new BObjectList<TaskList>(20);
 	taskList=new BObjectList<Task>(20);
 }
 
@@ -132,11 +132,11 @@ status_t TaskGoogle::RequestToken(char *accesString)
 
 status_t TaskGoogle::Load(void){
 	//this will also call atm the LoadTasks()... later we should move this here
-	LoadCategories();
+	LoadTaskLists();
 	//LoadTasks();
 }
 
-status_t TaskGoogle::LoadCategories(){
+status_t TaskGoogle::LoadTaskLists(){
 	
 	BString listUrlString("https://www.googleapis.com/tasks/v1/users/@me/lists?access_token=");
 	listUrlString.Append(token);
@@ -177,13 +177,13 @@ status_t TaskGoogle::LoadCategories(){
 		userList.FindString("updated",updateStr);
 		updated=RFC3339ToTime(updateStr->String());
 		userList.FindString("selfLink",selfLink);
-		Category* cat=new Category(title->String(),newID->String(),updated,selfLink->String());
-		categoryList->AddItem(cat);
+		TaskList* cat=new TaskList(title->String(),newID->String(),updated,selfLink->String());
+		tLists->AddItem(cat);
 		this->LoadTasks(cat);
 	}
 }
 
-status_t TaskGoogle::LoadTasks(Category* cat){
+status_t TaskGoogle::LoadTasks(TaskList* cat){
 	
 	//DO HTTP CONNECTION TO GOOGLE
 	BMessage	taskJson;
@@ -254,7 +254,7 @@ status_t TaskGoogle::RemoveToken(void){
 		return keyStore.RemoveKeyring(tasksKeyring);
 }
 
-BObjectList<Task>* TaskGoogle::GetTasks(Category ctgr){
+BObjectList<Task>* TaskGoogle::GetTasks(TaskList ctgr){
 }
 	
 Task* TaskGoogle::GetTask(BString id){
@@ -273,21 +273,21 @@ status_t TaskGoogle::RemoveTask(BString id){
 	//send delete Request to google
 }
 	
-/* ======== Category related===*/
-Category* TaskGoogle::GetCategorie(BString id) {
+/* ======== TaskList related===*/
+TaskList* TaskGoogle::GetTaskList(BString id) {
 	return NULL;
 }
 
-status_t TaskGoogle::AddCategorie(Category *ctgr){
+status_t TaskGoogle::AddTaskList(TaskList *ctgr){
 	//**implement
 	return B_ERROR;
 }
 	
-status_t TaskGoogle::UpdateCategorie(BString id,Category *ctgr){
+status_t TaskGoogle::UpdateTaskList(BString id,TaskList *ctgr){
 }
 
-		//what does google do if you call a delete on a Categorie?
-status_t TaskGoogle::RemoveCategorie(BString id){
+		//what does google do if you call a delete on a TaskList?
+status_t TaskGoogle::RemoveTaskList(BString id){
 }
 	
 
