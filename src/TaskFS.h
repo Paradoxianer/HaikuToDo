@@ -70,9 +70,11 @@ public:
 
 	
 private:
+			status_t				SetUpMimeTyp(void);
 			status_t				PrepareFirstStart(void);
 			status_t				TaskToFile(Task *theTask, bool overwrite = true);
 			Task*					FileToTask(entry_ref theEntryRef);
+			TaskList*				DirectorToList(BEntry *theEntry);
 			
 			entry_ref*				FileForId(Task *theTask);
 			

@@ -10,6 +10,8 @@
 
 #include "TaskList.h"
 
+class TaskSync;
+
 
 /** Maybe we should derive this and TaskList from one "Parent" 
   *	wich just contains the 
@@ -21,7 +23,7 @@
 class Task : public BArchivable{
 public:
 							Task();
-							Task(const char* title,TaskList *newList,const char* newID,bool completed);
+							Task(const char* title,TaskList *newList,const char* newID,bool completed = false, TaskSync *newParent=NULL);
 							Task(BMessage *message);
 						
 			status_t		Archive(BMessage* archive, bool deep = true);
@@ -56,6 +58,10 @@ public:
 	const	char*			URL(void){return url.String();};
 			void			SetURL(BString newURL){url=newURL;};
 
+
+			void			TaskSync(void){return newParent;};
+			void			SetTaskSync(TaskSync *newParen){parent=newParent;};
+
 			
 			bool			operator==(const Task& task) const;
 
@@ -65,6 +71,7 @@ protected:
 
 		
 private:
+			TaskSync		parent;
 			BString			title;
 			bool			completed;
 			TaskList*		belongTo;
@@ -83,7 +90,8 @@ private:
 			// we should implement the id, etag, selfLink
 			BString			id;
 			BString			url;
-		
+			
+			
 };
 
 #endif

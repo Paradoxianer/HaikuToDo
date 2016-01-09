@@ -4,46 +4,58 @@
 
 #include <Archivable.h>
 #include <String.h>
+#include <ObjectList.h>
+
+
 class Task;
+class TaskSync;
 
 class TaskList : public BArchivable {
 public:
-							TaskList();
-							TaskList(const char* newName);
-							TaskList(const char* newName, const char* newID, time_t lastUpdate, const char* newURL);
-							TaskList(BMessage *archive);
-							~TaskList() {};
+								TaskList();
+								TaskList(const char* newName);
+								TaskList(const char* newName, const char* newID, time_t lastUpdate  = 0, const char* newURL = NULL);
+								TaskList(BMessage *archive);
+								~TaskList() {};
 							
 							
-			status_t		Archive(BMessage* archive, bool deep = true);
-	static	BArchivable*	Instantiate(BMessage* archive);
+			status_t			Archive(BMessage* archive, bool deep = true);
+	static	BArchivable*		Instantiate(BMessage* archive);
 	
-	const	char*			Name(void) {return name.String();};
-			void			SetName(BString newName){name.SetTo(newName);};
+	const	char*				Name(void) {return name.String();};
+			void				SetName(BString newName){name.SetTo(newName);};
 	
-			time_t			LastUpdate(void){return updated;};
-			void			SetLastUpdate(bigtime_t newTime){ updated=newTime; };
+			time_t				LastUpdate(void){return updated;};
+			void				SetLastUpdate(bigtime_t newTime){ updated=newTime; };
 
-	const	char*			ID(void){return id.String();};
-			void			SetID(const char* newID){id.SetTo(newID);};
+	const	char*				ID(void){return id.String();};
+			void				SetID(const char* newID){id.SetTo(newID);};
 			
-			BString			URL(void){return url.String();};
-			void			SetURL(BString newURL){url=newURL;};
+			BString				URL(void){return url.String();};
+			void				SetURL(BString newURL){url=newURL;};
 
+			void				TaskSync(void){return newParent;};
+			void				SetTaskSync(TaskSync *newParen){parent=newParent;};
+
+
+			BObjectList<Task>*	GetTasks(void) {return taskList;};
 			
-			bool			operator==(const TaskList& task) const;
+			bool				operator==(const TaskList& task) const;
 
 protected:
-			void			Init(void);
+			void				Init(void);
 
 		
 private:
-			BString			name;
-			time_t			updated;
+			TaskSync			parent;
+			BString				name;
+			time_t				updated;
 			
-			// we should implement  etag
-			BString			id;
-			BString			url;
+			//should  we implement  etag?
+			BString				id;
+			BString				url;
+			BObjectList<Task>*	taskList;
+
 			
 };
 

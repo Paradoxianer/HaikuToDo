@@ -33,6 +33,19 @@ status_t TaskFS::Init(void)
 	return PrepareFirstStart();
 }
 
+BObjectList<Task>* TaskFS::GetTasks(void)
+{
+	BEntry *tmpEntry = new BEntry();
+	taskList->MakeEmpty();
+	taskListList->MakeEmpty();
+	while (tasksDir.GetNextEntry(tmpEntry, false) == B_OK)
+		if (tmpEntry->IsDirectory())
+			taskListList->AddItem(DirectorToList(tmpEntry));
+	return taskList;
+	tasksDir.Rewind();
+}
+
+
 
 BObjectList<Task>* TaskFS::GetTasks(void)
 {
@@ -100,13 +113,14 @@ status_t TaskFS::RemoveTask(BString id)
 
 TaskList* TaskFS::GetTaskList(BString id)
 {
-	//.. try to find the right ... id
+	//**.. try to find the right ... id
 }
 
 
 status_t TaskFS::AddTaskList(TaskList *ctgr)
 {
-	//**do nothing as we dont store TaskLists only
+	//**create folder
+	
 	return B_OK;
 }
 	
@@ -147,7 +161,13 @@ status_t TaskFS::PrepareFirstStart()
 		if (written < 0)
 			printf("Failed to write column info (%s)\n", strerror(written));
 	}
-	
+	SetUpMimeType();
+	return err;
+}
+
+status_t TaskFS::SetUpMimeTyp(void)
+{
+	status_t err;
 	//set the MimeType
 	BMimeType mime(TASK_MIMETYPE);
 	//later do better check
@@ -182,21 +202,23 @@ status_t TaskFS::PrepareFirstStart()
 			fields.AddBool("attr:extra", false);
 		}
 		mime.SetAttrInfo(&fields);
-	}
-
-	// create indices on all volumes for the found attributes.
-	int32 count = 8;
-	BVolumeRoster volumeRoster;
-	BVolume volume;
-	while (volumeRoster.GetNextVolume(&volume) == B_OK) {
-		for (int32 i = 0; i < count; i++) {
-			if (sDefaultAttributes[i].isPublic == true)
-				fs_create_index(volume.Device(), sDefaultAttributes[i].attribute,
-					sDefaultAttributes[i].type, 0);
+			// create indices on all volumes for the found attributes.
+		int32 count = 8;
+		BVolumeRoster volumeRoster;
+		BVolume volume;
+		while (volumeRoster.GetNextVolume(&volume) == B_OK) {
+			for (int32 i = 0; i < count; i++) {
+				if (sDefaultAttributes[i].isPublic == true)
+					fs_create_index(volume.Device(), sDefaultAttributes[i].attribute,
+						sDefaultAttributes[i].type, 0);
+			}
 		}
 	}
+	else
+		err = B_OK;
 	return err;
 }
+
 
 
 status_t TaskFS::TaskToFile(Task *theTask, bool overwrite)
@@ -281,6 +303,43 @@ Task* TaskFS::FileToTask(entry_ref theEntryRef)
 	newTask->SetURL(url);
 	return newTask;
 }
+
+
+TaskList* TaskFS::DirectorToList(BEntry *theEntry)
+{
+	TaskList*	newTaskList		=new TaskList();
+	//needed for the "attribute stuff
+	BFile	theFile(entry,B_READ_ONLY);
+	//needed to get out the name
+	
+	bool	completed;
+	char	name[B_FILE_NAME_LENGTH];
+	BString	taskListID;
+	BString	notes;
+	uint32	priority;
+	time_t	mtime;
+	BString	id;
+	BString	url;	
+	
+	//maby do a check if everything went ok and only if so set the values
+	theFile.ReadAttr("META:completed",B_BOOL_TYPE, 0, &completed, sizeof(completed));
+	theEntry->GetName(name);
+	theEntry->GetModificationTime(&mtime);
+	theFile->ReadAttrString("META:task_id", &id);
+	theFile->ReadAttrString("META:task_url",&url);
+	
+	//** find TaskList from ID//
+	
+	TaskList *newTaskList = new TaskList("");
+	newTaskList->SetID(taskListID);
+	newTaskList->SetTitle(BString(name));
+	newTask->SetModified(mtime);
+	newTask->SetID(id);
+	newTask->SetURL(url);
+	return newTaskList;
+}
+
+
 
 entry_ref* TaskFS::FileForId(Task *theTask)
 {

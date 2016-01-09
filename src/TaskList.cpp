@@ -1,4 +1,5 @@
 #include "TaskList.h"
+#include "TaskSync.h"
 #include "Task.h"
 
 TaskList::TaskList(): BArchivable()
@@ -21,6 +22,7 @@ TaskList::TaskList(const char* newName, const char* newID, time_t lastUpdate, co
 	id.SetTo(newID);
 	updated	= lastUpdate;
 	url.SetTo(newURL);
+	SetTaskSync(newParent);
 }
 
 
@@ -37,6 +39,7 @@ TaskList::TaskList(BMessage *message)
 
 void TaskList::Init(void)
 {
+	parent		= NULL;
 	name		= "";
 	updated		= real_time_clock();
 	id			= (int32)real_time_clock();

@@ -16,14 +16,15 @@ Task::Task()
 }
 
 
-Task::Task(const char* title,TaskList *tList,const char* newID,bool completed)
+Task::Task(const char* title,TaskList *tList,const char* newID,bool completed, TaskSync *newParent)
 	: BArchivable()
 {
 	Init();
 	SetTitle(title);
 	SetTaskList(tList);
 	SetID(newID);
-	Complete(completed);	
+	Complete(completed);
+	SetTaskSync(newParent);
 }
 
 
@@ -59,6 +60,7 @@ Task::Task(BMessage *message)
 
 void Task::Init(void)
 {
+	parent		= NULL;
 	title		= "";
 	completed	= false;
 	belongTo	= NULL;

@@ -19,23 +19,23 @@ class TaskSync : public BHandler {
 	 *here you should do things like prepare everything login and so on
 	 *returns the status of the how far the Init came.
 	 */
-	virtual	status_t				Init(void)					= 0;
+	virtual	status_t				Init(void)						= 0;
 	
 	
 	/**
 	 * returns a List of Task Objects 
 	 */
-	virtual	BObjectList<Task>*		GetTasks() 					= 0;
-	virtual	BObjectList<Task>*		GetTasks(TaskList ctgr)		= 0;
+	virtual	BObjectList<Task>*		GetTasks() 						= 0;
+	virtual	BObjectList<Task>*		GetTasks(TaskList ctgr)			= 0;
 	
-	virtual	Task*					GetTask(BString id) 		= 0;
+	virtual	Task*					GetTask(BString id) 			= 0;
 	
 	
-	virtual status_t				AddTask(Task *tsk)			= 0;
+	virtual status_t				AddTask(Task *tsk)				= 0;
 	
 	virtual status_t				UpdateTask(BString id,Task *tsk) = 0;
 	
-	virtual status_t				RemoveTask(BString id)		= 0;
+	virtual status_t				RemoveTask(BString id)			= 0;
 	
 	
 	/**
@@ -43,9 +43,9 @@ class TaskSync : public BHandler {
 	 */
 	virtual	BObjectList<TaskList>*	GetTaskLists()					= 0;
 
-	virtual	TaskList*				GetTaskList(BString id)		= 0;
+	virtual	TaskList*				GetTaskList(BString id)			= 0;
 
-	virtual status_t				AddTaskList(TaskList *ctgr)	= 0;	
+	virtual status_t				AddTaskList(TaskList *ctgr)		= 0;	
 	
 	virtual status_t				UpdateTaskList(BString id,TaskList *ctgr)	= 0;
 
