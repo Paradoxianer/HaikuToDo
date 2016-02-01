@@ -14,7 +14,7 @@ class TaskList : public BArchivable {
 public:
 								TaskList();
 								TaskList(const char* newName);
-								TaskList(const char* newName, const char* newID, time_t lastUpdate  = 0, const char* newURL = NULL);
+								TaskList(const char* newName, const char* newID, time_t lastUpdate  = 0, const char* newURL = NULL, TaskSync *newSource=NULL);
 								TaskList(BMessage *archive);
 								~TaskList() {};
 							
@@ -34,8 +34,8 @@ public:
 			BString				URL(void){return url.String();};
 			void				SetURL(BString newURL){url=newURL;};
 
-			void				TaskSync(void){return newParent;};
-			void				SetTaskSync(TaskSync *newParen){parent=newParent;};
+			TaskSync*			Source(void){return source;};
+			void				SetSource(TaskSync *newSource){source=newSource;};
 
 
 			BObjectList<Task>*	GetTasks(void) {return taskList;};
@@ -47,7 +47,7 @@ protected:
 
 		
 private:
-			TaskSync			parent;
+			TaskSync*			source;
 			BString				name;
 			time_t				updated;
 			
@@ -55,7 +55,6 @@ private:
 			BString				id;
 			BString				url;
 			BObjectList<Task>*	taskList;
-
 			
 };
 

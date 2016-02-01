@@ -44,8 +44,8 @@ public:
 	
 	/* =========== Handel all Tasks related operations ========*/
 	
-	virtual	BObjectList<Task>*		GetTasks(void);
 	virtual	Task*					GetTask(BString forID);
+	virtual	BObjectList<Task>*		GetTasks(void);
 	virtual	BObjectList<Task>*		GetTasks(TaskList list);
 	
 	virtual status_t				AddTask(Task *tsk);

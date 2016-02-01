@@ -33,29 +33,6 @@ status_t TaskFS::Init(void)
 	return PrepareFirstStart();
 }
 
-BObjectList<Task>* TaskFS::GetTasks(void)
-{
-	BEntry *tmpEntry = new BEntry();
-	taskList->MakeEmpty();
-	taskListList->MakeEmpty();
-	while (tasksDir.GetNextEntry(tmpEntry, false) == B_OK)
-		if (tmpEntry->IsDirectory())
-			taskListList->AddItem(DirectorToList(tmpEntry));
-	return taskList;
-	tasksDir.Rewind();
-}
-
-
-
-BObjectList<Task>* TaskFS::GetTasks(void)
-{
-	taskList->MakeEmpty();
-	entry_ref ref;
-	while (tasksDir.GetNextRef(&ref) == B_OK)
-		taskList->AddItem(FileToTask(ref));
-	return taskList;
-}
-
 Task* TaskFS::GetTask(BString forID)
 {
 	Task	*tmpTask	= NULL;
@@ -76,6 +53,19 @@ Task* TaskFS::GetTask(BString forID)
 		return NULL;
 }
 
+BObjectList<Task>* TaskFS::GetTasks(void)
+{
+	BEntry *tmpEntry = new BEntry();
+	taskList->MakeEmpty();
+	taskListList->MakeEmpty();
+	while (tasksDir.GetNextEntry(tmpEntry, false) == B_OK)
+		if (tmpEntry->IsDirectory())
+			taskListList->AddItem(DirectorToList(tmpEntry));
+	return taskList;
+	tasksDir.Rewind();
+}
+
+
 BObjectList<Task>* TaskFS::GetTasks(TaskList forCategorie)
 {
 	Task				*tmpTask		= NULL;
@@ -91,10 +81,12 @@ BObjectList<Task>* TaskFS::GetTasks(TaskList forCategorie)
 	return taskTaskList;
 }
 
+
 status_t TaskFS::AddTask(Task *tsk)
 {
 	return TaskToFile(tsk, true);
 }
+
 
 status_t TaskFS::UpdateTask(BString id, Task *tsk)
 {
@@ -161,7 +153,7 @@ status_t TaskFS::PrepareFirstStart()
 		if (written < 0)
 			printf("Failed to write column info (%s)\n", strerror(written));
 	}
-	SetUpMimeType();
+	SetUpMimeTyp();
 	return err;
 }
 
@@ -309,7 +301,7 @@ TaskList* TaskFS::DirectorToList(BEntry *theEntry)
 {
 	TaskList*	newTaskList		=new TaskList();
 	//needed for the "attribute stuff
-	BFile	theFile(entry,B_READ_ONLY);
+	BFile	theFile(theEntry,B_READ_ONLY);
 	//needed to get out the name
 	
 	bool	completed;
@@ -325,17 +317,16 @@ TaskList* TaskFS::DirectorToList(BEntry *theEntry)
 	theFile.ReadAttr("META:completed",B_BOOL_TYPE, 0, &completed, sizeof(completed));
 	theEntry->GetName(name);
 	theEntry->GetModificationTime(&mtime);
-	theFile->ReadAttrString("META:task_id", &id);
-	theFile->ReadAttrString("META:task_url",&url);
+	theFile.ReadAttrString("META:task_id", &id);
+	theFile.ReadAttrString("META:task_url",&url);
 	
 	//** find TaskList from ID//
 	
-	TaskList *newTaskList = new TaskList("");
 	newTaskList->SetID(taskListID);
-	newTaskList->SetTitle(BString(name));
-	newTask->SetModified(mtime);
-	newTask->SetID(id);
-	newTask->SetURL(url);
+	newTaskList->SetName(BString(name));
+	newTaskList->SetLastUpdate(mtime);
+	newTaskList->SetID(id);
+	newTaskList->SetURL(url);
 	return newTaskList;
 }
 

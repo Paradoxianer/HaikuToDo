@@ -8,6 +8,7 @@
 */
 
 #include "Task.h"
+#include "TaskSync.h"
 
 Task::Task()
 	: BArchivable()
@@ -16,7 +17,7 @@ Task::Task()
 }
 
 
-Task::Task(const char* title,TaskList *tList,const char* newID,bool completed, TaskSync *newParent)
+Task::Task(const char* title,TaskList *tList,const char* newID,bool completed, TaskSync *newSource)
 	: BArchivable()
 {
 	Init();
@@ -24,7 +25,7 @@ Task::Task(const char* title,TaskList *tList,const char* newID,bool completed, T
 	SetTaskList(tList);
 	SetID(newID);
 	Complete(completed);
-	SetTaskSync(newParent);
+	SetSource(newSource);
 }
 
 
@@ -60,7 +61,7 @@ Task::Task(BMessage *message)
 
 void Task::Init(void)
 {
-	parent		= NULL;
+	source		= NULL;
 	title		= "";
 	completed	= false;
 	belongTo	= NULL;

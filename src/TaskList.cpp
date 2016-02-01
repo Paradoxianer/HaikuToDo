@@ -1,4 +1,6 @@
+
 #include "TaskList.h"
+
 #include "TaskSync.h"
 #include "Task.h"
 
@@ -14,7 +16,7 @@ TaskList::TaskList(const char* newName)
 	name=newName;
 }
 
-TaskList::TaskList(const char* newName, const char* newID, time_t lastUpdate, const char* newURL)
+TaskList::TaskList(const char* newName, const char* newID, time_t lastUpdate, const char* newURL, TaskSync *newSource)
 	: BArchivable()
 {
 	Init();
@@ -22,7 +24,7 @@ TaskList::TaskList(const char* newName, const char* newID, time_t lastUpdate, co
 	id.SetTo(newID);
 	updated	= lastUpdate;
 	url.SetTo(newURL);
-	SetTaskSync(newParent);
+	SetSource(newSource);
 }
 
 
@@ -39,7 +41,7 @@ TaskList::TaskList(BMessage *message)
 
 void TaskList::Init(void)
 {
-	parent		= NULL;
+	source		= NULL;
 	name		= "";
 	updated		= real_time_clock();
 	id			= (int32)real_time_clock();

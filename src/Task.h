@@ -23,7 +23,7 @@ class TaskSync;
 class Task : public BArchivable{
 public:
 							Task();
-							Task(const char* title,TaskList *newList,const char* newID,bool completed = false, TaskSync *newParent=NULL);
+							Task(const char* title,TaskList *newList,const char* newID,bool completed = false, TaskSync *newSource=NULL);
 							Task(BMessage *message);
 						
 			status_t		Archive(BMessage* archive, bool deep = true);
@@ -59,8 +59,8 @@ public:
 			void			SetURL(BString newURL){url=newURL;};
 
 
-			void			TaskSync(void){return newParent;};
-			void			SetTaskSync(TaskSync *newParen){parent=newParent;};
+			TaskSync*		Source(void){return source;};
+			void			SetSource(TaskSync *newSource){source=newSource;};
 
 			
 			bool			operator==(const Task& task) const;
@@ -71,7 +71,7 @@ protected:
 
 		
 private:
-			TaskSync		parent;
+			TaskSync*		source;
 			BString			title;
 			bool			completed;
 			TaskList*		belongTo;
