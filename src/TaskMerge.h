@@ -1,19 +1,22 @@
 /*
- * Copyright 2016 Your Name <your@email.address>
+ * Copyright 2016 Paradoxon <your@email.address>
  * All rights reserved. Distributed under the terms of the MIT license.
  */
-#ifndef _H
-#define _H
+#ifndef TASK_MERGE_H
+#define TASK_MERGE_H
 
+
+#include <Looper.h>
 
 #include <SupportDefs.h>
 #include "TaskSync.h"
+#include "Task.h"
 
 
-class TaskMerge: public TaskSync {
+class TaskMerge: public BLooper, public TaskSync {
 public:
-	 						TaskMerge(void){};
-							~TaskMerge(void){};
+	 						TaskMerge(void);
+							~TaskMerge(void);
 		
 	/**
 	 *is called to prepare the TaskSync Object for Running
@@ -60,10 +63,12 @@ public:
 	status_t				AddTaskSync(TaskSync *sync);
 	status_t				RemoveTaskSync(TaskSync *sync);
 	
+	status_t				MergeIn(BObjectList<Task> *newTaskList);
+	Task*					MergeTasks(Task* firstTask, Task *secondTask);	
 	 
 								
 private:
-
+	BObjectList<Task>		*taskList;
 };
 
 
