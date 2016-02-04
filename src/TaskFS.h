@@ -1,6 +1,7 @@
 #ifndef TASK_FS_H
 #define TASK_FS_H
 
+#include <Handler.h>
 #include <FindDirectory.h>
 #include <StorageKit.h>
 #include <Locale.h>
@@ -12,7 +13,7 @@
 
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "TaskApp"
-
+	
 
 struct attrib {
 	const char*	attribute;
@@ -36,7 +37,7 @@ const attrib sDefaultAttributes[] = {
 	{ NULL, 0,NULL,false,false,0, NULL }
 };
 
-class TaskFS : public TaskSync {
+class TaskFS : public TaskSync, public BHandler {
 public:
 									TaskFS();
 									~TaskFS();
@@ -74,7 +75,7 @@ private:
 			status_t				PrepareFirstStart(void);
 			status_t				TaskToFile(Task *theTask, bool overwrite = true);
 			Task*					FileToTask(entry_ref theEntryRef);
-			TaskList*				DirectorToList(BEntry *theEntry);
+			TaskList*				DirectoryToList(BEntry *theEntry);
 			
 			entry_ref*				FileForId(Task *theTask);
 			

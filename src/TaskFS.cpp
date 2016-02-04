@@ -13,7 +13,7 @@
 #include "TasksApp.h"
 
 
-TaskFS::TaskFS()
+TaskFS::TaskFS(void):BHandler("FS_Sync")
 {
 	taskList		= NULL;
 	taskListList	= NULL;
@@ -60,7 +60,7 @@ BObjectList<Task>* TaskFS::GetTasks(void)
 	taskListList->MakeEmpty();
 	while (tasksDir.GetNextEntry(tmpEntry, false) == B_OK)
 		if (tmpEntry->IsDirectory())
-			taskListList->AddItem(DirectorToList(tmpEntry));
+			taskListList->AddItem(DirectoryToList(tmpEntry));
 	return taskList;
 	tasksDir.Rewind();
 }
@@ -297,7 +297,7 @@ Task* TaskFS::FileToTask(entry_ref theEntryRef)
 }
 
 
-TaskList* TaskFS::DirectorToList(BEntry *theEntry)
+TaskList* TaskFS::DirectoryToList(BEntry *theEntry)
 {
 	TaskList*	newTaskList		=new TaskList();
 	//needed for the "attribute stuff

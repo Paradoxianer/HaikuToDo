@@ -18,8 +18,7 @@
 #include "Internet.hpp"
 #include "TasksApp.h"
 
-TaskGoogle::TaskGoogle()
-{
+TaskGoogle::TaskGoogle(){
 	tLists=new BObjectList<TaskList>(20);
 	taskList=new BObjectList<Task>(20);
 }

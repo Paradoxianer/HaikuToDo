@@ -1,6 +1,7 @@
 #ifndef GOOGLE_CONNECT_H
 #define GOOGLE_CONNECT_H
 
+#include <Handler.h>
 #include "TaskSync.h"
 #include "Task.h"
 #include "TaskList.h"
@@ -11,10 +12,10 @@
 #define REDIRECT_URI "urn:ietf:wg:oauth:2.0:oob"
 
 
-class TaskGoogle : public TaskSync {
+class TaskGoogle : public TaskSync, public BHandler {
 	public:
-									TaskGoogle();
-									~TaskGoogle();
+									TaskGoogle(void);
+									~TaskGoogle(void);
 		/*
 		 * Init calls LoadToken wich trys to load the refrech token
 		 * from the KeyManager, if this fails we try force the user to 
