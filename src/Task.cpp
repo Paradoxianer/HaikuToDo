@@ -25,7 +25,7 @@ Task::Task(const char* title,TaskList *tList,const char* newID,bool completed, T
 	SetTaskList(tList);
 	SetID(newID);
 	Complete(completed);
-	SetSource(newSource);
+	AddSource(newSource);
 }
 
 
@@ -51,7 +51,6 @@ Task::Task(BMessage *message)
 	
 	message->FindString("notes",&notes);
 	
-	
 	message->FindInt32("due",(int32 *)&dueString);
 	
 	message->FindBool("status", &completed);
@@ -61,7 +60,7 @@ Task::Task(BMessage *message)
 
 void Task::Init(void)
 {
-	source		= NULL;
+	source		= new BObjectList<TaskSync>();
 	title		= "";
 	completed	= false;
 	belongTo	= NULL;
@@ -69,7 +68,6 @@ void Task::Init(void)
 	notes		= "";
 	due			= 0;
 	priority	= 10;
-	
 }
 
 
@@ -99,13 +97,38 @@ BArchivable* Task::Instantiate(BMessage* archive)
    return new Task(archive);
 }
 
+void Task::SetTo(Task *other)
+{
+	title		= other->Title();
+	completed	= other->IsCompleted();
+	belongTo	= other->GetTaskList();
+	updated		= other->LastUpdate();
+	notes		= other->Notes();
+	due			= other->DueTime();
+	priority	= other->Priority();
+	url			= other->URL();
+	source		= other->Source();
+}
 
 bool Task::operator==(const Task& other) const
 {
-	return     title == other.title 
-			&& completed == other.completed
-			&& *belongTo == *(other.belongTo)
-			&& updated == other.updated
-			&& notes == other.notes 
-			&& due == other.due;
+	return     title		== other.title 
+			&& completed	== other.completed
+			&& *belongTo	== *(other.belongTo)
+			&& updated		== other.updated
+			&& notes		== other.notes 
+			&& due			== other.due
+			&& id			== other.id;
+}
+
+bool Task::operator>(const Task& other) const
+{
+	// can we check id and return somehow an error if the id is not correct?
+	return updated > other.updated;
+}
+
+bool Task::operator<(const Task& other) const
+{
+	// can we check id and return somehow an error if the id is not correct?
+	return updated < other.updated;
 }

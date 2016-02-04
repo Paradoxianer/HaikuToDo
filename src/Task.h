@@ -59,11 +59,15 @@ public:
 			void			SetURL(BString newURL){url=newURL;};
 
 
-			TaskSync*		Source(void){return source;};
-			void			SetSource(TaskSync *newSource){source=newSource;};
+BObjectList<TaskSync>*		Source(void){return source;};
+			void			AddSource(TaskSync *newSource){source->AddItem(newSource);};
+			
+			void			SetTo(Task *other);
 
 			
 			bool			operator==(const Task& task) const;
+			bool			operator>(const Task& task) const;
+			bool			operator<(const Task& task) const;
 
 
 protected:
@@ -71,25 +75,25 @@ protected:
 
 		
 private:
-			TaskSync*		source;
-			BString			title;
-			bool			completed;
-			TaskList*		belongTo;
-			time_t			updated; //this should be hidden at least in the tracker
+			BObjectList<TaskSync>	*source;
+			BString					title;
+			bool					completed;
+			TaskList*				belongTo;
+			time_t					updated; //this should be hidden at least in the tracker
 			
 			//this are optional
-			BString			notes;
-			time_t			due;  //time when this todo should be finished
+			BString					notes;
+			time_t					due;  //time when this todo should be finished
 			
 			
 			/*this is haiku only supported ... we maybe blend this into notes or title or better calculate
 			  the position (from the google task out of this
 			*/
-			uint32			priority;
+			uint32					priority;
 			
 			// we should implement the id, etag, selfLink
-			BString			id;
-			BString			url;
+			BString					id;
+			BString					url;
 			
 			
 };
