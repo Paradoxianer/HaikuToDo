@@ -9,9 +9,9 @@
 #include "TaskList.h"
 
 
-class TaskSync : public BHandler {
+class TaskSync  {
 	public:
-			  						TaskSync(void){};
+									TaskSync(void){};
 	virtual							~TaskSync(void){};
 		
 	/**
@@ -33,7 +33,7 @@ class TaskSync : public BHandler {
 	
 	virtual status_t				AddTask(Task *tsk)				= 0;
 	
-	virtual status_t				UpdateTask(BString id,Task *tsk) = 0;
+	virtual status_t				UpdateTask(BString id,Task *tsk)= 0;
 	
 	virtual status_t				RemoveTask(BString id)			= 0;
 	
