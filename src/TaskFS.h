@@ -76,6 +76,7 @@ private:
 			status_t				TaskToFile(Task *theTask, bool overwrite = true);
 			Task*					FileToTask(entry_ref theEntryRef);
 			TaskList*				DirectoryToList(BEntry *theEntry);
+			BEntry					*ListToDirectory(TaskList *theList);
 			
 			entry_ref*				FileForId(Task *theTask);
 			

@@ -218,38 +218,53 @@ status_t TaskFS::TaskToFile(Task *theTask, bool overwrite)
 	BFile		taskFile;
 	BEntry		entry;
 	status_t	err;
+	TaskList	*tskLst	= theTask->GetTaskList();
 	
+	BDirectory	dir		= BDirectory();
+
 	bool	completed	= theTask->IsCompleted();
 	uint32	priority	= theTask->Priority();
 	time_t	due			= theTask->DueTime();
+
+
+	//first find directory.. then create files in this directory
+	if (tskLst!=NULL)
+		dir.SetTo(&tasksDir,tskLst->Name());
+	else
+		dir.SetTo(&tasksDir,".");
 
 	
 	//first check if the File already exists..
 	//if not and overwrite is on check the ids..
 	// and search for the correspondending file...
-	if (tasksDir.FindEntry(theTask->Title(),&entry) == B_OK) {
+
+	if (dir.FindEntry(theTask->Title(),&entry) == B_OK) {
 		taskFile.SetTo((const BEntry*)&entry,B_READ_WRITE);
 		err = B_OK;
 	} 
 	else {
 		entry_ref *ref= FileForId(theTask);
 		if (ref==NULL){
-			tasksDir.CreateFile(theTask->Title(),&taskFile,overwrite);
-			tasksDir.FindEntry(theTask->Title(),&entry);
+			dir.CreateFile(theTask->Title(),&taskFile,overwrite);
+			dir.FindEntry(theTask->Title(),&entry);
 		}
 		else {
 			entry.SetTo(ref);
 			taskFile.SetTo((const BEntry*)ref,B_READ_WRITE);
 		}
 	}
-	taskFile.WriteAttr("META:completed",B_BOOL_TYPE, 0, &completed, sizeof(completed));
-	entry.Rename(theTask->Title());
-	taskFile.WriteAttrString("META:taskList",new BString(theTask->GetTaskList()->ID()));
-	taskFile.WriteAttrString("META:notes",new BString(theTask->Notes()));
-	taskFile.WriteAttr("META:priority", B_UINT32_TYPE, 0, &priority, sizeof(priority));
-	taskFile.WriteAttr("META:due", B_TIME_TYPE, 0, &due, sizeof(due));
-	taskFile.WriteAttrString("META:task_id",  new BString(theTask->ID()));
-	taskFile.WriteAttrString("META:task_url",new BString(theTask->URL()));
+	if (taskFile.InitCheck() == B_OK){
+		taskFile.WriteAttr("META:completed",B_BOOL_TYPE, 0, &completed, sizeof(completed));
+		entry.Rename(theTask->Title());
+		taskFile.WriteAttrString("META:taskList",new BString(theTask->GetTaskList()->ID()));
+		taskFile.WriteAttrString("META:notes",new BString(theTask->Notes()));
+		taskFile.WriteAttr("META:priority", B_UINT32_TYPE, 0, &priority, sizeof(priority));
+		taskFile.WriteAttr("META:due", B_TIME_TYPE, 0, &due, sizeof(due));
+		taskFile.WriteAttrString("META:task_id",  new BString(theTask->ID()));
+		taskFile.WriteAttrString("META:task_url",new BString(theTask->URL()));
+	}
+	else
+		err=B_ERROR;
 	return err; 
 }
 
@@ -297,6 +312,30 @@ Task* TaskFS::FileToTask(entry_ref theEntryRef)
 }
 
 
+BEntry* TaskFS::ListToDirectory(TaskList *theList)
+{
+	BEntry		*entry	= NULL;
+	BDirectory	*dir	= new BDirectory();
+	int32		i		= 0;
+	if (tasksDir.InitCheck()==B_OK) {
+		if (tasksDir.CreateDirectory(theList->Name(),dir)==B_OK)
+		{
+			if (dir->InitCheck()==B_OK){
+				dir->WriteAttrString("META:task_id",  new BString(theList->ID()));
+				dir->WriteAttrString("META:task_url",new BString(theList->URL()));
+				dir->SetModificationTime(theList->LastUpdate());
+				for (i=0;i<theList->GetTasks()->CountItems();i++)
+				{
+					TaskToFile(theList->GetTasks()->ItemAt(i));
+				}
+			}
+		}
+	}
+	delete dir;
+	return entry;
+}
+
+
 TaskList* TaskFS::DirectoryToList(BEntry *theEntry)
 {
 	TaskList*	newTaskList		=new TaskList();
@@ -304,23 +343,18 @@ TaskList* TaskFS::DirectoryToList(BEntry *theEntry)
 	BFile	theFile(theEntry,B_READ_ONLY);
 	//needed to get out the name
 	
-	bool	completed;
 	char	name[B_FILE_NAME_LENGTH];
 	BString	taskListID;
 	BString	notes;
-	uint32	priority;
 	time_t	mtime;
 	BString	id;
 	BString	url;	
 	
 	//maby do a check if everything went ok and only if so set the values
-	theFile.ReadAttr("META:completed",B_BOOL_TYPE, 0, &completed, sizeof(completed));
 	theEntry->GetName(name);
 	theEntry->GetModificationTime(&mtime);
 	theFile.ReadAttrString("META:task_id", &id);
 	theFile.ReadAttrString("META:task_url",&url);
-	
-	//** find TaskList from ID//
 	
 	newTaskList->SetID(taskListID);
 	newTaskList->SetName(BString(name));
