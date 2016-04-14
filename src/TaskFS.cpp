@@ -323,11 +323,15 @@ BEntry* TaskFS::ListToDirectory(TaskList *theList)
 			if (dir->InitCheck()==B_OK){
 				dir->WriteAttrString("META:task_id",  new BString(theList->ID()));
 				dir->WriteAttrString("META:task_url",new BString(theList->URL()));
-				dir->SetModificationTime(theList->LastUpdate());
+				ssize_t written = tasksDir.WriteAttr("_trk/columns_le", B_RAW_TYPE,
+					0, task_columns, sizeof(task_columns));
+				if (written < 0)
+					printf("Failed to write column info (%s)\n", strerror(written));
 				for (i=0;i<theList->GetTasks()->CountItems();i++)
 				{
 					TaskToFile(theList->GetTasks()->ItemAt(i));
 				}
+				dir->SetModificationTime(theList->LastUpdate());
 			}
 		}
 	}
