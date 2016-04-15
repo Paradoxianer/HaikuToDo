@@ -69,6 +69,8 @@ public:
 								
 private:
 	BObjectList<Task>		*taskList;
+	BObjectList<TaskSync>	*syncerList;
+
 };
 
 
