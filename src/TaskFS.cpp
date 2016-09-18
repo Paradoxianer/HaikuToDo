@@ -13,7 +13,7 @@
 #include "TasksApp.h"
 
 
-TaskFS::TaskFS(void):BHandler("FS_Sync")
+TaskFS::TaskFS(void):TaskSync()
 {
 	taskList		= NULL;
 	taskListList	= NULL;

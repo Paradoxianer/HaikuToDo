@@ -15,7 +15,7 @@
 
 #include "TaskGoogle.h"
 #include "InputRequest.h"
-#include "Internet.hpp"
+#include "Internet.h"
 #include "TasksApp.h"
 
 TaskGoogle::TaskGoogle(){

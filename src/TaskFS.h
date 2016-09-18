@@ -15,6 +15,9 @@
 #define B_TRANSLATION_CONTEXT "TaskApp"
 	
 
+	//installl a Eventloop to watch the tasks folder for changes
+
+
 struct attrib {
 	const char*	attribute;
 	type_code	type;
@@ -37,7 +40,7 @@ const attrib sDefaultAttributes[] = {
 	{ NULL, 0,NULL,false,false,0, NULL }
 };
 
-class TaskFS : public TaskSync, public BHandler {
+class TaskFS : public TaskSync{
 public:
 									TaskFS();
 									~TaskFS();

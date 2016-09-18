@@ -9,7 +9,7 @@
 #include "TaskList.h"
 
 
-class TaskSync  {
+class TaskSync : public BHandler  {
 	public:
 									TaskSync(void){};
 	virtual							~TaskSync(void){};
