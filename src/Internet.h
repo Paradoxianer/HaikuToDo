@@ -1,5 +1,5 @@
-#ifndef INTERNET_HPP
-#define INTERNET_HPP
+#ifndef INTERNET_H
+#define INTERNET_H
 
 #include <NetworkKit.h>
 #include <UrlRequest.h>
