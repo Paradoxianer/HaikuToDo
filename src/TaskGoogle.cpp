@@ -110,7 +110,7 @@ status_t TaskGoogle::RequestToken(char *accesString)
 	
 	BMessage tokenJson;
 	BPrivate::BJson::Parse(tokenJson,tokenResponse);
-	tokenJson.PrintToStream();
+	//tokenJson.PrintToStream();
 	
 	//this should start the counter how long the token stays valid	
 	token			= BString(tokenJson.GetString("access_token",""));
@@ -144,7 +144,7 @@ status_t TaskGoogle::LoadTaskLists(){
 	
 	BMessage listsJson;
 	BPrivate::BJson::Parse(listsJson,listsResponse);
-	listsJson.PrintToStream();
+	//listsJson.PrintToStream();
 	
 	BMessage userLists;
 	if(listsJson.FindMessage("items",0,&userLists)!=B_OK)
@@ -162,7 +162,7 @@ status_t TaskGoogle::LoadTaskLists(){
 		{
 			std::cerr << "ERROR: No '0' list found " << std::endl;
 		}
-		userList.PrintToStream();
+		//userList.PrintToStream();
 		BString*	title		= new BString();
 		BString*	newID		= new BString();
 		BString*	updateStr	= new BString();
@@ -198,14 +198,14 @@ status_t TaskGoogle::LoadTasks(TaskList* cat){
 	url.Append(token);
 	
 	BString response(HaikuHTTP::GET(url));
-	std::cout << response.String() << std::endl;
+	//std::cout << response.String() << std::endl;
 	BPrivate::BJson::Parse(taskJson,response);
-	taskJson.PrintToStream();
+	//taskJson.PrintToStream();
 	
 	BMessage items;
 	taskJson.FindMessage("items",&items);
 	int32 lists=items.CountNames(B_ANY_TYPE);
-	std::cout << "Lists found: " << lists << std::endl;
+	//std::cout << "Lists found: " << lists << std::endl;
 	
 	for(int32 currentTask=0;currentTask<lists;currentTask++)
 	{
@@ -216,7 +216,7 @@ status_t TaskGoogle::LoadTasks(TaskList* cat){
 		{
 			std::cerr << "ERROR: No '0' list found " << std::endl;
 		}
-		task.PrintToStream();
+		//task.PrintToStream();
 		const char* title;
 		const char* taskId;
 		const char*	newID;
@@ -318,4 +318,28 @@ char* TaskGoogle::TimeToRFC3339(time_t timeT){
 	timeinfo = localtime (&timeT);
 	strftime (timeString,sizeof(timeString),"%Y-%m-%dT%T.%z",timeinfo);
 	return timeString;
+}
+
+
+void TaskGoogle::MessageReceived(BMessage *message)
+{
+	TRACE();
+	PRINT_OBJECT(*message);
+	switch (message->what) {
+	case LOAD_TASKS:
+		break;
+	case ADD_TASK:
+		break;
+	case ADD_TASK_LIST:
+		break;
+	case REMOVE_TASK:
+		break;
+	case REMOVE_TASK_LIST:
+		break;
+	case MODIFY_TASK:
+		break;
+	default:
+		BHandler::MessageReceived(message);
+		break;
+	}
 }

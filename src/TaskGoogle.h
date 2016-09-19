@@ -90,6 +90,7 @@ class TaskGoogle : public TaskSync{
 
 		//what does google do if you call a delete on a TaskList?
 		virtual status_t				RemoveTaskList(BString id);	
+				void					MessageReceived(BMessage *message);
 	
 
 private:

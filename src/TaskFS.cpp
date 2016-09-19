@@ -125,7 +125,8 @@ status_t  TaskFS::UpdateTaskList(BString id,TaskList *ctgr)
 
 status_t TaskFS::RemoveTaskList(BString id)
 {
-	//find all entrys with categories... and delete it....
+
+	//remove the directory
 }
 
 
@@ -384,4 +385,56 @@ entry_ref* TaskFS::FileForId(Task *theTask)
 				return ref;
 	}
 	return NULL;
+}
+
+
+void TaskFS::MessageReceived(BMessage *message)
+{
+	TRACE();
+	PRINT_OBJECT(*message);
+	switch (message->what) {
+	case LOAD_TASKS:
+			GetTasks();
+		break;
+	case ADD_TASK:
+		Task *tmpTask;
+		if (message->FindPointer("task",(void**)&tmpTask) == B_OK)
+			if (tmpTask != NULL)
+				AddTask(tmpTask);
+		else{
+			tmpTask=Task::Instantiate(message);
+			if (tmpTask!=NULL)
+				AddTask(tmpTask);
+		}
+		break;
+	case ADD_TASK_LIST:
+		TaskList *tmpTaskList;
+		if (message->FindPointer("tasklist",(void**)&tmpTaskList) == B_OK)
+			if (tmpTaskList != NULL)
+				AddTaskList(tmpTaskList);
+		else{
+			tmpTaskList=TaskList::Instantiate(message);
+			if (tmpTaskList!=NULL)
+				AddTask(tmpTaskList);
+		}		
+		break;
+	case REMOVE_TASK:
+		Task *tmpTask;
+		if (message->FindPointer("task",(void**)&tmpTask) == B_OK)
+			if (tmpTask != NULL)
+				RemoveTask(tmpTask);
+		break;
+	case REMOVE_TASK_LIST:
+		TaskList *tmpTaskList;
+		if (message->FindPointer("tasklist",(void**)&tmpTaskList) == B_OK)
+			if (tmpTaskList != NULL)
+				RemoveTask(tmpTaskList);
+		break;
+		break;
+	case MODIFY_TASK:
+		break;
+	default:
+		BHandler::MessageReceived(message);
+		break;
+	}
 }

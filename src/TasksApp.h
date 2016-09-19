@@ -4,6 +4,7 @@
 #include <Application.h>
 #include <Locale.h>
 #include <Catalog.h>
+#include <Debug.h>
 
 #include "Task.h"
 #include "TaskFS.h"
@@ -19,6 +20,7 @@
 
 #define TASK_MIMETYPE "application/x-tasks"
 
+static const uint32 LOAD_TASKS			= 'load';
 static const uint32 ADD_TASK			= 'addT';
 static const uint32 ADD_TASK_LIST		= 'addL';
 static const uint32 REMOVE_TASK			= 'rmTs';
@@ -49,6 +51,9 @@ public:
 		status_t		StartUp(void);
 	
 		void			MessageReceived(BMessage *message);
+		void			ReadyToRun();
+
+		void			BroadCast(BMessage *message);
 	
 static	int32			EventLoop(void *data);
 

@@ -71,6 +71,7 @@ public:
 	//promt and ask if all Taks should be deleted or if the TaskList just be blank
 	virtual status_t				RemoveTaskList(BString id);
 	
+			void					MessageReceived(BMessage *message);
 
 	
 private:

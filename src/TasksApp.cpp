@@ -16,22 +16,8 @@ TaskApp::TaskApp()
 	:	BApplication(APP_SIG)
 {
 	FirstStart();
-	
 	fsSync = new TaskFS();
 	gSync	= new TaskGoogle();
-	
-	AddHandler(fsSync);
-	AddHandler(gSync);
-	
-	fsSync->Init();
-	fsSync->GetTasks();
-	gSync->Init();
-	gSync->GetTasks();
-	
-
-	
-	//iterate throught all gSync Tasks and Add them to the fsSync
-	//because fsSync is our basis
 }
 
 
@@ -39,6 +25,16 @@ TaskApp::~TaskApp()
 {
 }
 
+void TaskApp::ReadyToRun()
+{
+	/*fsSync->Init();
+	gSync->Init();*/
+	AddHandler(fsSync);
+	AddHandler(gSync);
+	fsSync->StartWatchingAll(this);
+	gSync->StartWatchingAll(this);
+	PostMessage(LOAD_TASKS);
+}
 
 status_t TaskApp::FirstStart()
 {
@@ -48,6 +44,7 @@ status_t TaskApp::FirstStart()
 
 void TaskApp::MessageReceived(BMessage *message)
 {
+	PRINT_OBJECT(*message);
 	switch (message->what) {
 	case MERGE_TASKS:
 		Task	*one;
@@ -57,9 +54,10 @@ void TaskApp::MessageReceived(BMessage *message)
 				Task *mainTask=MergeTasks(one,two);
 				BMessage *msg= new BMessage(MODIFY_TASK);
 				msg->AddPointer("Task",mainTask);
-				PostMessage(msg);
+				BroadCast(msg);
 			}
-	break;
+		break;
+	case LOAD_TASKS:
 	case ADD_TASK:		
 	case ADD_TASK_LIST:
 	case REMOVE_TASK:
@@ -67,13 +65,27 @@ void TaskApp::MessageReceived(BMessage *message)
 	case MODIFY_TASK:
 	case ADD_TASK_SYNC:
 	case REMOVE_TASK_SYNC:
-	
+		bool broadcast;
+		broadcast = false;
+		message->FindBool("BroadCast", &broadcast);
+		//onyl Broadcast this Message if this message has not yet been broadcasted
+		if (broadcast == false)
+			BroadCast(message);
+		break;
 	default:
 		BApplication::MessageReceived(message);
 		break;
 	}
 }
 
+void TaskApp::BroadCast(BMessage *message)
+{
+	//start a 1 so that we dont include the looper itself
+	message->AddBool("BroadCast",true);
+	for (int i = 1; i<CountHandlers();i++){
+		PostMessage(message,HandlerAt(i));
+	}
+}
 
 int32 TaskApp::EventLoop(void *data)
 {
@@ -96,3 +108,4 @@ Task* TaskApp::MergeTasks(Task* firstTask, Task *secondTask)
 		return firstTask;
 	}	
 }
+
