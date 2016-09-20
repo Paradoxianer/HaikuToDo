@@ -15,21 +15,21 @@
 
 TaskFS::TaskFS(void):TaskSync()
 {
-	taskList		= NULL;
-	taskListList	= NULL;
+	tasks		= NULL;
+	taskLists	= NULL;
 }
 
 
 TaskFS::~TaskFS()
 {
-	delete taskListList;
-	delete taskList;
+	delete taskLists;
+	delete tasks;
 }
 
 status_t TaskFS::Init(void)
 {
-	taskList		= new BObjectList<Task>();
-	taskListList	= new BObjectList<TaskList>();
+	tasks		= new BObjectList<Task>();
+	taskLists	= new BObjectList<TaskList>();
 	return PrepareFirstStart();
 }
 
@@ -40,9 +40,9 @@ Task* TaskFS::GetTask(BString forID)
 	bool	found		= false;
 	//grab a up to date List of Items
 	GetTasks();
-	while (i<taskList->CountItems() && found!=true)
+	while (i<tasks->CountItems() && found!=true)
 	{
-		tmpTask=taskList->ItemAt(i);
+		tmpTask=tasks->ItemAt(i);
 		found = tmpTask->ID() == forID;
 		i++;
 	}
@@ -53,28 +53,49 @@ Task* TaskFS::GetTask(BString forID)
 		return NULL;
 }
 
-BObjectList<Task>* TaskFS::GetTasks(void)
+BObjectList<Task>* TaskFS::Load(void)
 {
 	BEntry *tmpEntry = new BEntry();
-	taskList->MakeEmpty();
-	taskListList->MakeEmpty();
-	while (tasksDir.GetNextEntry(tmpEntry, false) == B_OK)
-		if (tmpEntry->IsDirectory())
-			taskListList->AddItem(DirectoryToList(tmpEntry));
-	return taskList;
+	TaskList	*newTaskList	= NULL;
+	Task		*newTask		= NULL;
+	tasks->MakeEmpty();
+	taskLists->MakeEmpty();
+	while (tasksDir.GetNextEntry(tmpEntry, false) == B_OK) {
+		if (tmpEntry->IsDirectory()){
+			newTaskList = DirectoryToList(tmpEntry);
+			if (newTaskList != NULL){
+				BMessage *msg = new BMessage()
+				msg->AddPointer("tasklist",newTaskList);
+				Looper()->SendNotices(ADD_TASK_LIST,msg);
+				taskLists->AddItem(newTaskList);
+			}
+		}
+	}
+	while (tasksDir.GetNextEntry(tmpEntry, false) == B_OK) {
+		if (tmpEntry->IsDirectory()){
+			newTaskList = DirectoryToList(tmpEntry);
+			if (newTaskList != NULL){
+				BMessage *msg = new BMessage()
+				msg->AddPointer("tasklist",newTaskList);
+				Looper()->SendNotices(ADD_TASK_LIST,msg);
+				taskLists->AddItem(newTaskList);
+			}
+		}
+	}
 	tasksDir.Rewind();
+	return tasks;
 }
 
 
-BObjectList<Task>* TaskFS::GetTasks(TaskList forCategorie)
+BObjectList<Task>* TaskFS::GetTasks(TaskList forList)
 {
 	Task				*tmpTask		= NULL;
 	BObjectList<Task>	*taskTaskList	= new BObjectList<Task>();
 	int32	i;
 	//grab a up to date List of Items
 	GetTasks();
-	for (i = 0; i<taskList->CountItems();i++) {
-		tmpTask=taskList->ItemAt(i);
+	for (i = 0; i<tasks->CountItems();i++) {
+		tmpTask=tasks->ItemAt(i);
 		if (*(tmpTask->GetTaskList()) == forCategorie)
 			taskTaskList->AddItem(tmpTask);
 	}
@@ -257,7 +278,7 @@ status_t TaskFS::TaskToFile(Task *theTask, bool overwrite)
 	if (taskFile.InitCheck() == B_OK){
 		taskFile.WriteAttr("META:completed",B_BOOL_TYPE, 0, &completed, sizeof(completed));
 		entry.Rename(theTask->Title());
-		taskFile.WriteAttrString("META:taskList",new BString(theTask->GetTaskList()->ID()));
+		taskFile.WriteAttrString("META:tasks",new BString(theTask->GetTaskList()->ID()));
 		taskFile.WriteAttrString("META:notes",new BString(theTask->Notes()));
 		taskFile.WriteAttr("META:priority", B_UINT32_TYPE, 0, &priority, sizeof(priority));
 		taskFile.WriteAttr("META:due", B_TIME_TYPE, 0, &due, sizeof(due));
@@ -290,7 +311,7 @@ Task* TaskFS::FileToTask(entry_ref theEntryRef)
 	//maby do a check if everything went ok and only if so set the values
 	theFile.ReadAttr("META:completed",B_BOOL_TYPE, 0, &completed, sizeof(completed));
 	theEntry.GetName(name);
-	theFile.ReadAttrString("META:taskList",&taskListID);
+	theFile.ReadAttrString("META:tasks",&taskListID);
 	theFile.ReadAttrString("META:notes",&notes);
 	theFile.ReadAttr("META:priority", B_UINT32_TYPE, 0, &priority, sizeof(priority));
 	theFile.ReadAttr("META:due", B_TIME_TYPE, 0, &due, sizeof(due));
@@ -309,6 +330,9 @@ Task* TaskFS::FileToTask(entry_ref theEntryRef)
 	newTask->SetDueTime(due);
 	newTask->SetID(id);
 	newTask->SetURL(url);
+	BMessage *msg = new BMessage()
+	msg->AddPointer("task",newTask);
+	Looper()->SendNotices(ADD_TASK,msg);
 	return newTask;
 }
 
@@ -392,49 +416,49 @@ void TaskFS::MessageReceived(BMessage *message)
 {
 	TRACE();
 	PRINT_OBJECT(*message);
-	switch (message->what) {
-	case LOAD_TASKS:
+	Task		*tmpTask;
+	TaskList	*tmpTaskList;
+	uint32		realWhat = 0;
+	if (message->what ==  B_OBSERVER_NOTICE_CHANGE &&
+	  message->FindInt32("be:observe_change_what", (int32*) &realWhat) == B_OK) {
+		switch (realWhat) {
+		case LOAD_TASKS:
 			GetTasks();
-		break;
-	case ADD_TASK:
-		Task *tmpTask;
-		if (message->FindPointer("task",(void**)&tmpTask) == B_OK)
-			if (tmpTask != NULL)
-				AddTask(tmpTask);
-		else{
-			tmpTask=Task::Instantiate(message);
-			if (tmpTask!=NULL)
-				AddTask(tmpTask);
+			break;	
+		case ADD_TASK:
+			if (message->FindPointer("task",(void**)&tmpTask) == B_OK)
+				if (tmpTask != NULL)
+					AddTask(tmpTask);
+			else{
+				printf("Add Task - cant find task\n");
+			}
+			break;
+		case ADD_TASK_LIST:
+			if (message->FindPointer("tasklist",(void**)&tmpTaskList) == B_OK)
+				if (tmpTaskList != NULL)
+					AddTaskList(tmpTaskList);
+			else{
+				printf("Add Task List - cant find task list\n");
+			}		
+			break;
+		case REMOVE_TASK:
+			if (message->FindPointer("task",(void**)&tmpTask) == B_OK)
+				if (tmpTask != NULL)
+					RemoveTask(tmpTask->ID());	
+			break;
+		case REMOVE_TASK_LIST:
+			TaskList *tmpTaskList;
+			if (message->FindPointer("tasklist",(void**)&tmpTaskList) == B_OK)
+				if (tmpTaskList != NULL)
+					RemoveTaskList(tmpTaskList->ID());
+			break;
+		case MODIFY_TASK:
+			break;
+		default:
+			BHandler::MessageReceived(message);
+			break;
 		}
-		break;
-	case ADD_TASK_LIST:
-		TaskList *tmpTaskList;
-		if (message->FindPointer("tasklist",(void**)&tmpTaskList) == B_OK)
-			if (tmpTaskList != NULL)
-				AddTaskList(tmpTaskList);
-		else{
-			tmpTaskList=TaskList::Instantiate(message);
-			if (tmpTaskList!=NULL)
-				AddTask(tmpTaskList);
-		}		
-		break;
-	case REMOVE_TASK:
-		Task *tmpTask;
-		if (message->FindPointer("task",(void**)&tmpTask) == B_OK)
-			if (tmpTask != NULL)
-				RemoveTask(tmpTask);
-		break;
-	case REMOVE_TASK_LIST:
-		TaskList *tmpTaskList;
-		if (message->FindPointer("tasklist",(void**)&tmpTaskList) == B_OK)
-			if (tmpTaskList != NULL)
-				RemoveTask(tmpTaskList);
-		break;
-		break;
-	case MODIFY_TASK:
-		break;
-	default:
-		BHandler::MessageReceived(message);
-		break;
 	}
+	else
+			BHandler::MessageReceived(message);
 }

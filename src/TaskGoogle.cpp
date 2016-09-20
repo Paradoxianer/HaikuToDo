@@ -325,21 +325,29 @@ void TaskGoogle::MessageReceived(BMessage *message)
 {
 	TRACE();
 	PRINT_OBJECT(*message);
-	switch (message->what) {
-	case LOAD_TASKS:
+	Task		*tmpTask;
+	TaskList	*tmpTaskList;
+	uint32		realWhat = 0;
+	if (message->what ==  B_OBSERVER_NOTICE_CHANGE &&
+	  message->FindInt32("be:observe_change_what", (int32*) &realWhat) == B_OK) {
+		switch (message->what) {
+		case LOAD_TASKS:
+			break;
+		case ADD_TASK:
+			break;
+		case ADD_TASK_LIST:
+			break;
+		case REMOVE_TASK:
+			break;
+		case REMOVE_TASK_LIST:
 		break;
-	case ADD_TASK:
-		break;
-	case ADD_TASK_LIST:
-		break;
-	case REMOVE_TASK:
-		break;
-	case REMOVE_TASK_LIST:
-		break;
-	case MODIFY_TASK:
-		break;
-	default:
-		BHandler::MessageReceived(message);
-		break;
+			case MODIFY_TASK:
+			break;
+		default:
+			BHandler::MessageReceived(message);
+			break;
+		}
 	}
+	else
+		BHandler::MessageReceived(message);
 }

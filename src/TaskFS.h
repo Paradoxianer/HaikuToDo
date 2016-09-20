@@ -48,8 +48,11 @@ public:
 	
 	/* =========== Handel all Tasks related operations ========*/
 	
+	//walks through all Directorys and all Files to load all Task
+	virtual	BObjectList<Task>*		Load(void);
+	
 	virtual	Task*					GetTask(BString forID);
-	virtual	BObjectList<Task>*		GetTasks(void);
+
 	virtual	BObjectList<Task>*		GetTasks(TaskList list);
 	
 	virtual status_t				AddTask(Task *tsk);
@@ -86,8 +89,8 @@ private:
 			
 			BDirectory				tasksDir;
 			
-			BObjectList<Task>*		taskList;
-			BObjectList<TaskList>*	taskListList;
+			BObjectList<Task>*		tasks;
+			BObjectList<TaskList>*	taskLists;
 		
 };
 

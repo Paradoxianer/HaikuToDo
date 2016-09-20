@@ -31,9 +31,9 @@ void TaskApp::ReadyToRun()
 	gSync->Init();*/
 	AddHandler(fsSync);
 	AddHandler(gSync);
-	fsSync->StartWatchingAll(this);
-	gSync->StartWatchingAll(this);
-	PostMessage(LOAD_TASKS);
+	StartWatchingAll(fsSync);
+	StartWatchingAll(gSync);
+	SendNotices(LOAD_TASKS);
 }
 
 status_t TaskApp::FirstStart()
@@ -65,13 +65,13 @@ void TaskApp::MessageReceived(BMessage *message)
 	case MODIFY_TASK:
 	case ADD_TASK_SYNC:
 	case REMOVE_TASK_SYNC:
-		bool broadcast;
+	/*	bool broadcast;
 		broadcast = false;
 		message->FindBool("BroadCast", &broadcast);
 		//onyl Broadcast this Message if this message has not yet been broadcasted
 		if (broadcast == false)
 			BroadCast(message);
-		break;
+		break;*/
 	default:
 		BApplication::MessageReceived(message);
 		break;
