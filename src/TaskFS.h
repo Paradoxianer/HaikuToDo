@@ -49,8 +49,10 @@ public:
 	/* =========== Handel all Tasks related operations ========*/
 	
 	//walks through all Directorys and all Files to load all Task
-	virtual	BObjectList<Task>*		Load(void);
+	virtual	status_t				Load(void);
 	
+	virtual	BObjectList<Task>*		GetTasks(void){return tasks;};
+
 	virtual	Task*					GetTask(BString forID);
 
 	virtual	BObjectList<Task>*		GetTasks(TaskList list);
@@ -64,7 +66,7 @@ public:
 	
 	/* ========= Handel all List related operations ======*/
 
-	virtual	BObjectList<TaskList>*	GetTaskLists(void){return taskListList;};
+	virtual	BObjectList<TaskList>*	GetTaskLists(void){return taskLists;};
 	virtual	TaskList*				GetTaskList(BString id);
 
 	virtual status_t				AddTaskList(TaskList *ctgr);
@@ -74,8 +76,6 @@ public:
 	//promt and ask if all Taks should be deleted or if the TaskList just be blank
 	virtual status_t				RemoveTaskList(BString id);
 	
-			void					MessageReceived(BMessage *message);
-
 	
 private:
 			status_t				SetUpMimeTyp(void);

@@ -14,22 +14,6 @@
 #undef B_TRANSLATION_CONTEXT
 #define B_TRANSLATION_CONTEXT "TaskApp"
 
-#define	APP_SIG	"application/x-vnd.Tasks"
-
-#define TASK_DIRECTORY "tasks"
-
-#define TASK_MIMETYPE "application/x-tasks"
-
-static const uint32 LOAD_TASKS			= 'load';
-static const uint32 ADD_TASK			= 'addT';
-static const uint32 ADD_TASK_LIST		= 'addL';
-static const uint32 REMOVE_TASK			= 'rmTs';
-static const uint32 REMOVE_TASK_LIST	= 'rmLt';
-static const uint32 MODIFY_TASK			= 'mTsk';
-static const uint32 ADD_TASK_SYNC		= 'addS';
-static const uint32 REMOVE_TASK_SYNC	= 'rmSy';
-static const uint32 MERGE_TASKS			= 'TmT';
-
 
 static const char* tasksKeyring = "Tasks";
 

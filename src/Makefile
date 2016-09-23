@@ -35,7 +35,7 @@ SRCS =	InputRequest.cpp \
 		TaskFS.cpp \
 		TaskGoogle.cpp \
 		TaskList.cpp \
-		TaskMerge.cpp
+		TaskSync.cpp
 		
 #		Settings.cpp
 

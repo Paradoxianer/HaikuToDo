@@ -10,7 +10,7 @@
 #include "Task.h"
 #include "TaskFS.h"
 #include "TaskColumns.h"
-#include "TasksApp.h"
+#include "TaskDefs.h"
 
 
 TaskFS::TaskFS(void):TaskSync()
@@ -53,8 +53,9 @@ Task* TaskFS::GetTask(BString forID)
 		return NULL;
 }
 
-BObjectList<Task>* TaskFS::Load(void)
+status_t TaskFS::Load(void)
 {
+	status_t err = B_OK;
 	BEntry *tmpEntry = new BEntry();
 	TaskList	*newTaskList	= NULL;
 	Task		*newTask		= NULL;
@@ -64,7 +65,7 @@ BObjectList<Task>* TaskFS::Load(void)
 		if (tmpEntry->IsDirectory()){
 			newTaskList = DirectoryToList(tmpEntry);
 			if (newTaskList != NULL){
-				BMessage *msg = new BMessage()
+				BMessage *msg = new BMessage();
 				msg->AddPointer("tasklist",newTaskList);
 				Looper()->SendNotices(ADD_TASK_LIST,msg);
 				taskLists->AddItem(newTaskList);
@@ -75,7 +76,7 @@ BObjectList<Task>* TaskFS::Load(void)
 		if (tmpEntry->IsDirectory()){
 			newTaskList = DirectoryToList(tmpEntry);
 			if (newTaskList != NULL){
-				BMessage *msg = new BMessage()
+				BMessage *msg = new BMessage();
 				msg->AddPointer("tasklist",newTaskList);
 				Looper()->SendNotices(ADD_TASK_LIST,msg);
 				taskLists->AddItem(newTaskList);
@@ -83,7 +84,7 @@ BObjectList<Task>* TaskFS::Load(void)
 		}
 	}
 	tasksDir.Rewind();
-	return tasks;
+	return err;
 }
 
 
@@ -96,7 +97,7 @@ BObjectList<Task>* TaskFS::GetTasks(TaskList forList)
 	GetTasks();
 	for (i = 0; i<tasks->CountItems();i++) {
 		tmpTask=tasks->ItemAt(i);
-		if (*(tmpTask->GetTaskList()) == forCategorie)
+		if (*(tmpTask->GetTaskList()) == forList)
 			taskTaskList->AddItem(tmpTask);
 	}
 	return taskTaskList;
@@ -330,7 +331,7 @@ Task* TaskFS::FileToTask(entry_ref theEntryRef)
 	newTask->SetDueTime(due);
 	newTask->SetID(id);
 	newTask->SetURL(url);
-	BMessage *msg = new BMessage()
+	BMessage *msg = new BMessage();
 	msg->AddPointer("task",newTask);
 	Looper()->SendNotices(ADD_TASK,msg);
 	return newTask;
@@ -411,54 +412,3 @@ entry_ref* TaskFS::FileForId(Task *theTask)
 	return NULL;
 }
 
-
-void TaskFS::MessageReceived(BMessage *message)
-{
-	TRACE();
-	PRINT_OBJECT(*message);
-	Task		*tmpTask;
-	TaskList	*tmpTaskList;
-	uint32		realWhat = 0;
-	if (message->what ==  B_OBSERVER_NOTICE_CHANGE &&
-	  message->FindInt32("be:observe_change_what", (int32*) &realWhat) == B_OK) {
-		switch (realWhat) {
-		case LOAD_TASKS:
-			GetTasks();
-			break;	
-		case ADD_TASK:
-			if (message->FindPointer("task",(void**)&tmpTask) == B_OK)
-				if (tmpTask != NULL)
-					AddTask(tmpTask);
-			else{
-				printf("Add Task - cant find task\n");
-			}
-			break;
-		case ADD_TASK_LIST:
-			if (message->FindPointer("tasklist",(void**)&tmpTaskList) == B_OK)
-				if (tmpTaskList != NULL)
-					AddTaskList(tmpTaskList);
-			else{
-				printf("Add Task List - cant find task list\n");
-			}		
-			break;
-		case REMOVE_TASK:
-			if (message->FindPointer("task",(void**)&tmpTask) == B_OK)
-				if (tmpTask != NULL)
-					RemoveTask(tmpTask->ID());	
-			break;
-		case REMOVE_TASK_LIST:
-			TaskList *tmpTaskList;
-			if (message->FindPointer("tasklist",(void**)&tmpTaskList) == B_OK)
-				if (tmpTaskList != NULL)
-					RemoveTaskList(tmpTaskList->ID());
-			break;
-		case MODIFY_TASK:
-			break;
-		default:
-			BHandler::MessageReceived(message);
-			break;
-		}
-	}
-	else
-			BHandler::MessageReceived(message);
-}

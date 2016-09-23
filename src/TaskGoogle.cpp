@@ -133,6 +133,7 @@ status_t TaskGoogle::Load(void){
 	//this will also call atm the LoadTasks()... later we should move this here
 	LoadTaskLists();
 	//LoadTasks();
+	return B_OK;
 }
 
 status_t TaskGoogle::LoadTaskLists(){
@@ -318,36 +319,4 @@ char* TaskGoogle::TimeToRFC3339(time_t timeT){
 	timeinfo = localtime (&timeT);
 	strftime (timeString,sizeof(timeString),"%Y-%m-%dT%T.%z",timeinfo);
 	return timeString;
-}
-
-
-void TaskGoogle::MessageReceived(BMessage *message)
-{
-	TRACE();
-	PRINT_OBJECT(*message);
-	Task		*tmpTask;
-	TaskList	*tmpTaskList;
-	uint32		realWhat = 0;
-	if (message->what ==  B_OBSERVER_NOTICE_CHANGE &&
-	  message->FindInt32("be:observe_change_what", (int32*) &realWhat) == B_OK) {
-		switch (message->what) {
-		case LOAD_TASKS:
-			break;
-		case ADD_TASK:
-			break;
-		case ADD_TASK_LIST:
-			break;
-		case REMOVE_TASK:
-			break;
-		case REMOVE_TASK_LIST:
-		break;
-			case MODIFY_TASK:
-			break;
-		default:
-			BHandler::MessageReceived(message);
-			break;
-		}
-	}
-	else
-		BHandler::MessageReceived(message);
 }

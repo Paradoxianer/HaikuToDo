@@ -2,6 +2,7 @@
 
 #include "TasksApp.h"
 #include "Task.h"
+#include "TaskDefs.h"
 
 int
 main(int argc, const char *argv[])
