@@ -11,7 +11,7 @@
 
 class TaskSync : public BHandler  {
 	public:
-									TaskSync(void){};
+									TaskSync(void);
 	virtual							~TaskSync(void){};
 		
 	/**
@@ -20,6 +20,12 @@ class TaskSync : public BHandler  {
 	 *returns the status of the how far the Init came.
 	 */
 	virtual	status_t				Init(void)						= 0;
+	
+	/**
+	 * loads all Task into the TaskSync Class this should be called
+	 * before any action is performed on the TaskSync object
+	 */
+	virtual	status_t				Load(void)						= 0;
 	
 	
 	/**
@@ -51,6 +57,8 @@ class TaskSync : public BHandler  {
 
 	//what should we do? should we delete all task wich belong to this cateorie?
 	virtual status_t				RemoveTaskList(BString id)		= 0;
+	
+	void							MessageReceived(BMessage *message);
 	
 };
 
